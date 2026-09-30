@@ -113,6 +113,33 @@
  .class-icon .class-art{width:27px!important;height:27px!important;flex-basis:27px}
  .class-icon b{min-height:18px;font-size:7.5px;line-height:1.08}
  .class-icon .tick{top:2px;right:2px;width:12px;height:12px;font-size:8px}
+}/* Configuration picker summary and progressive tier disclosure. */
+.config-character-picker summary{display:flex;align-items:center;gap:8px;min-height:48px;list-style:none}
+.config-character-picker summary::-webkit-details-marker{display:none}
+.config-summary-character{display:flex;align-items:center;gap:8px;min-width:0}
+.config-summary-character .avatar{width:32px;height:32px;flex:0 0 32px}
+.config-summary-character b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.config-summary-character .rank-badge{flex:0 0 auto}
+.config-summary-action{margin-left:auto;color:var(--muted);font-size:11px;font-weight:700;white-space:nowrap}
+.config-summary-action::after{content:" ▾";color:var(--gold)}
+.config-character-picker[open] .config-summary-action::after{content:" ▴"}
+.class-tier-compact{display:flex;align-items:center;gap:6px;min-width:0;padding:7px;background:#fffdf8}
+.class-tier-compact .class-icon{width:72px!important;flex:0 0 72px}
+.tier-no-selection{padding:8px;color:var(--muted);font-size:12px}
+.tier-expand{position:sticky;right:0;margin-left:auto;flex:0 0 auto;align-self:center;padding:7px 10px;border-color:#9abbb1;background:#e8f2ee;color:#205b4c;box-shadow:0 2px 6px #17374618;white-space:nowrap}
+.tier-expand:hover{border-color:#4d8e7b;background:#dcece6}
+.class-role-melee{border-top:3px solid #a94d43}
+.class-role-bow{border-top:3px solid #b98920}
+.class-role-mounted{border-top:3px solid #4f865a}
+.class-role-flying{border-top:3px solid #3977a8}
+.class-role-magic{border-top:3px solid #73549b}
+@media(max-width:720px){
+ .config-character-picker summary{min-height:43px;padding:6px 8px}
+ .config-summary-character .avatar{width:29px;height:29px;flex-basis:29px}
+ .class-tier-compact{gap:3px;padding:4px;overflow-x:auto}
+ .class-tier-compact .class-icon{width:55px!important;flex-basis:55px}
+ .tier-no-selection{padding:5px 3px;font-size:10px}
+ .tier-expand{padding:6px 7px;font-size:10px}
 }</style>
 </head>
 <body>
@@ -344,34 +371,37 @@ document.getElementById("members").onclick=e=>{const el=e.target;if(el.dataset.a
 document.getElementById("export").onclick=()=>{const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([JSON.stringify(state,null,2)],{type:"application/json"}));a.download="万缕千丝-培养路线登记.json";a.click();URL.revokeObjectURL(a.href);};
 document.getElementById("import").onclick=()=>document.getElementById("importFile").click();
 document.getElementById("importFile").onchange=e=>{const f=e.target.files[0];if(!f)return;const reader=new FileReader();reader.onload=()=>{try{const x=JSON.parse(reader.result);if(!x.teams)throw Error();state=x;ROUTES.forEach(r=>state.teams[r] ||= []);state.customPaths ||= {};state.pathEdits ||= {};state.characterRanks ||= {};state.lang=state.lang==="ja"?"ja":"zh";save();render();renderConfig();}catch{alert(isJa()?"バックアップファイルが無効です。":"备份文件无效，未导入。");}};reader.readAsText(f);e.target.value="";};
-let configCharacterId=CHARACTERS[0].id,configRef={kind:"base",index:0},draftSteps=[],draftName="",routePickerMemberId=null;
+let configCharacterId=CHARACTERS[0].id,configRef={kind:"base",index:0},draftSteps=[],draftName="",routePickerMemberId=null,expandedConfigTiers=new Set();
 const classStep=id=>{const c=classById[id];return c?{tier:c.tier,name:c.name,classId:c.id}:null;};
 function configRefs(c){return editableBuiltInPaths(c).map((p,i)=>({kind:"base",index:i,path:p})).concat((state.customPaths[c.id]||[]).map((p,i)=>({kind:"custom",index:i,path:p})));}
 function normalizeConfig(c){const refs=configRefs(c);if(!refs.length){state.customPaths[c.id]=[{src:isJa()?"新しいルート":"新路线",steps:[]}];configRef={kind:"custom",index:0};}else if(!refs.some(x=>x.kind===configRef.kind&&x.index===configRef.index))configRef={kind:refs[0].kind,index:refs[0].index};}
 function currentConfig(c){return configRefs(c).find(x=>x.kind===configRef.kind&&x.index===configRef.index)?.path;}
-function loadDraft(c){normalizeConfig(c);const p=currentConfig(c)||{src:"",steps:[]};draftName=p.src||"";draftSteps=(p.steps||[]).map(s=>s.classId).filter(Boolean);}
+function loadDraft(c){normalizeConfig(c);const p=currentConfig(c)||{src:"",steps:[]};draftName=p.src||"";draftSteps=(p.steps||[]).map(s=>s.classId).filter(Boolean);expandedConfigTiers=new Set();}
 function openCustomConfig(id){configCharacterId=id;configRef={kind:"base",index:0};loadDraft(characterById[id]);document.querySelector('[data-view="config"]').click();document.getElementById("configView").scrollIntoView?.({behavior:"smooth",block:"start"});}
 function glyph(c){const n=c.name;return /箭|弓|猎|狙|影/.test(n)?"🏹":/魔|巫|贤|主教|僧/.test(n)?"✦":/骑|马|象|鸵|车/.test(n)?"♞":/飞|龙|翼/.test(n)?"🜁":/装|甲|塞|卫/.test(n)?"⬡":/剑|侍|刀/.test(n)?"⚔":"◆";}
 function renderConfig(){
- renderChrome();const c=characterById[configCharacterId];if(!c)return;normalizeConfig(c);const p=currentConfig(c);if(!draftSteps.length&&p?.steps?.length)loadDraft(c);
+ renderChrome();const c=characterById[configCharacterId];if(!c)return;normalizeConfig(c);const p=currentConfig(c);
  const groups=[...SAVIOR_ROSTER_GROUPS,["other","其他人物","その他の第1部キャラ"],["hidden","隐藏 · 后期加入","隠し・後期加入"]];
  document.getElementById("configCharacterList").innerHTML=groups.map(g=>{const chars=CHARACTERS.filter(x=>saviorRosterGroup(x)===g[0]);return chars.length?'<section class="config-character-group"><h3>'+esc(isJa()?g[2]:g[1])+'</h3><div class="config-character-grid">'+chars.map(x=>'<button class="config-character '+(x.id===configCharacterId?"active":"")+'" data-config-character="'+x.id+'"><img class="avatar" src="'+portrait(x)+'" alt=""><b>'+esc(charName(x))+'</b>'+(state.characterRanks?.[x.id]?'<i class="rank-badge rank-'+state.characterRanks[x.id]+'">'+state.characterRanks[x.id]+'</i>':'')+'<small>'+esc(saviorRosterDescription(x,recruitInfo(x,"救世篇").label))+'</small></button>').join("")+'</div></section>':"";}).join("");
+ const summaryRank=state.characterRanks?.[c.id];document.getElementById("configCharacterSummary").innerHTML='<span class="config-summary-character"><img class="avatar" src="'+portrait(c)+'" alt=""><b>'+esc(charName(c))+'</b>'+(summaryRank?'<i class="rank-badge rank-'+summaryRank+'">'+summaryRank+'</i>':'')+'</span><span class="config-summary-action">'+(isJa()?"キャラを変更":"更换角色")+'</span>';
  const refs=configRefs(c);document.getElementById("routeName").value=draftName;document.getElementById("characterRank").value=state.characterRanks?.[c.id]||"";document.getElementById("editPathSelect").innerHTML=refs.map(r=>'<option value="'+r.kind+':'+r.index+'" '+(r.kind===configRef.kind&&r.index===configRef.index?"selected":"")+'>'+esc(r.path.src||"路线 "+(r.index+1))+'</option>').join("");
  const tiers=[["初级","初級",isJa()?"推奨 Lv5 · 名声 Lv1":"推荐 Lv5 · 名声 Lv1"],["中级","中級",isJa()?"推奨 Lv20 · 名声 Lv4":"推荐 Lv20 · 名声 Lv4"],["上级","上級",isJa()?"推奨 Lv35 · 名声 Lv8":"推荐 Lv35 · 名声 Lv8"],["最上级","最上級",isJa()?"推奨 Lv45 · 名声制限なし":"推荐 Lv45 · 名声不限"],["神将","神将",isJa()?"専用素材":"特殊素材"]];
  const fixedCategory={"士兵":"mounted","飞鸵兵":"flying","恶棍":"bow","重装步兵":"mounted","骑甲鸵兵":"flying","勇士":"melee","巨型重甲兵":"mounted","卫士":"mounted","森林骑士":"bow","神鸵兵":"flying","要塞":"mounted","圣枪师":"mounted","弓骑士":"bow","岚枪神将":"mounted"};
  const categoryOf=x=>fixedCategory[x.name]||(/诅咒|萨满|牧师|先知|主教|游唱诗人|锻造师|德鲁伊|贤士|瓦尔基|高阶墓志铭|武僧|圣转|圣转神将/.test(x.name)?"magic":/天翼|驭龙|飞龙/.test(x.name)?"flying":/飞鸵|轻骑|战车|骑甲|荣光骑士|神鸵|重装骑兵|战象|弓骑士|奥利哈铁骑|英勇骑士|烈骏/.test(x.name)?"mounted":/猎兵|弓箭手|狙击手|游侠|宗师射手|探影者|绝祸|神乐/.test(x.name)?"bow":"melee");
  const cats=[["melee",isJa()?"戦士":"斗士"],["bow",isJa()?"狩人":"猎兵"],["mounted",isJa()?"兵士":"士兵"],["flying",isJa()?"飛行":"飞行"],["magic",isJa()?"魔道":"魔道"]];
  const iconOf=x=>x.id==="cls-35"?"":"img/classes/class_"+(CLASSES.indexOf(x)+1)+".png";
- document.getElementById("classChart").innerHTML=tiers.map(t=>'<section class="class-tier"><div class="class-tier-title"><span>'+esc(isJa()?t[1]:t[0])+'</span><small>'+t[2]+'</small></div><div class="class-tier-options">'+cats.map(cat=>{const jobs=CLASSES.filter(x=>x.tier===t[0]&&categoryOf(x)===cat[0]);return '<section class="class-category class-category-'+cat[0]+'"><h4>'+cat[1]+'</h4><div class="class-category-jobs">'+(jobs.length?jobs.map(x=>'<button class="class-icon '+(draftSteps.includes(x.id)?"active":"")+'" data-class-toggle="'+x.id+'" data-tier="'+x.tier+'" title="'+esc(x.requirement||"")+'">'+(iconOf(x)?'<img class="class-art" src="'+iconOf(x)+'" alt="'+esc(className(x))+'" loading="lazy">':'<span class="class-art class-art-empty" aria-label="暂无图标">—</span>')+'<b>'+esc(className(x))+'</b><span class="tick">'+(draftSteps.includes(x.id)?"✓":"")+'</span></button>').join(""):'<span class="class-category-empty">—</span>')+'</div></section>';}).join("")+'</div></section>').join("");
+ const classButton=x=>'<button class="class-icon class-role-'+categoryOf(x)+' '+(draftSteps.includes(x.id)?"active":"")+'" data-class-toggle="'+x.id+'" data-tier="'+x.tier+'" title="'+esc(x.requirement||"")+'">'+(iconOf(x)?'<img class="class-art" src="'+iconOf(x)+'" alt="'+esc(className(x))+'" loading="lazy">':'<span class="class-art class-art-empty" aria-label="暂无图标">—</span>')+'<b>'+esc(className(x))+'</b><span class="tick">'+(draftSteps.includes(x.id)?"✓":"")+'</span></button>';
+ const renderTier=t=>{const expanded=configRef.kind==="custom"||expandedConfigTiers.has(t[0]),selected=CLASSES.filter(x=>x.tier===t[0]&&draftSteps.includes(x.id));const body=expanded?'<div class="class-tier-options">'+cats.map(cat=>{const jobs=CLASSES.filter(x=>x.tier===t[0]&&categoryOf(x)===cat[0]);return '<section class="class-category class-category-'+cat[0]+'"><h4>'+cat[1]+'</h4><div class="class-category-jobs">'+(jobs.length?jobs.map(classButton).join(""):'<span class="class-category-empty">—</span>')+'</div></section>';}).join("")+'</div>':'<div class="class-tier-compact">'+(selected.length?selected.map(classButton).join(""):'<span class="tier-no-selection">'+(isJa()?"未選択":"尚未选择")+'</span>')+'<button class="tier-expand" data-tier-expand="'+t[0]+'">＋ '+(isJa()?"追加":"追加")+'</button></div>';return '<section class="class-tier"><div class="class-tier-title"><span>'+esc(isJa()?t[1]:t[0])+'</span><small>'+t[2]+'</small></div>'+body+'</section>';};
+ document.getElementById("classChart").innerHTML=tiers.map(renderTier).join("");
 }
 function saveRoute(){const c=characterById[configCharacterId],name=document.getElementById("routeName").value.trim()||(isJa()?"自作ルート":"自定义路线"),value={src:name,steps:draftSteps.map(classStep).filter(Boolean)};if(configRef.kind==="base")ensureEditableBuiltIns(c)[configRef.index]=value;else state.customPaths[c.id][configRef.index]=value;draftName=name;save();render();renderConfig();}
 document.querySelector(".view-tabs").onclick=e=>{const b=e.target.closest("[data-view]");if(!b)return;const v=b.dataset.view;document.querySelectorAll(".view-tabs button").forEach(x=>x.classList.toggle("active",x===b));document.getElementById("teamView").hidden=v!=="team";document.getElementById("configView").hidden=v!=="config";if(v==="config"){loadDraft(characterById[configCharacterId]);renderConfig();}};
 document.getElementById("backTeam").onclick=()=>document.querySelector('[data-view="team"]').click();
-document.getElementById("configCharacterList").onclick=e=>{const id=e.target.closest("[data-config-character]")?.dataset.configCharacter;if(id){configCharacterId=id;configRef={kind:"base",index:0};loadDraft(characterById[id]);renderConfig();}};
+document.getElementById("configCharacterList").onclick=e=>{const id=e.target.closest("[data-config-character]")?.dataset.configCharacter;if(id){configCharacterId=id;configRef={kind:"base",index:0};loadDraft(characterById[id]);document.querySelector(".config-character-picker").open=false;renderConfig();}};
 document.getElementById("editPathSelect").onchange=e=>{const a=e.target.value.split(":");configRef={kind:a[0],index:+a[1]};loadDraft(characterById[configCharacterId]);renderConfig();};
-document.getElementById("classChart").onclick=e=>{const id=e.target.closest("[data-class-toggle]")?.dataset.classToggle;if(id){draftSteps.includes(id)?draftSteps=draftSteps.filter(x=>x!==id):draftSteps.push(id);renderConfig();}};
+document.getElementById("classChart").onclick=e=>{const tier=e.target.closest("[data-tier-expand]")?.dataset.tierExpand;if(tier){expandedConfigTiers.add(tier);renderConfig();return;}const id=e.target.closest("[data-class-toggle]")?.dataset.classToggle;if(id){draftSteps.includes(id)?draftSteps=draftSteps.filter(x=>x!==id):draftSteps.push(id);renderConfig();}};
 document.getElementById("newCustomPath").onclick=()=>{const c=characterById[configCharacterId];state.customPaths[c.id] ||= [];state.customPaths[c.id].push({src:isJa()?"新しいルート":"新路线",steps:[]});configRef={kind:"custom",index:state.customPaths[c.id].length-1};loadDraft(c);renderConfig();};
-document.getElementById("characterRank").onchange=e=>{state.characterRanks[configCharacterId]=e.target.value;if(!e.target.value)delete state.characterRanks[configCharacterId];save();render();};document.getElementById("saveRoute").onclick=saveRoute;
+document.getElementById("characterRank").onchange=e=>{state.characterRanks[configCharacterId]=e.target.value;if(!e.target.value)delete state.characterRanks[configCharacterId];save();render();renderConfig();};document.getElementById("saveRoute").onclick=saveRoute;
 document.getElementById("restoreDefaultRoute").onclick=()=>{delete state.pathEdits?.[configCharacterId];configRef={kind:"base",index:0};loadDraft(characterById[configCharacterId]);save();render();renderConfig();};
 function openRouteMenu(id){routePickerMemberId=id;const m=state.teams[active].find(x=>x.id===id),ps=pathOptions(characterById[id]),d=document.getElementById("routeDialogOptions");d.innerHTML=ps.map((p,i)=>'<button class="'+(i===m.path?"active":"")+'" data-route-choice="'+i+'">'+esc(p.steps?.length?stepName(p.steps.at(-1)):"路线 "+(i+1))+'</button>').join("")+'<button data-route-choice="custom">＋ '+(isJa()?"自作ルートを設定":"配置自定义路线")+'</button>';document.getElementById("routeDialog").showModal();}
 document.getElementById("closeRouteDialog").onclick=()=>document.getElementById("routeDialog").close();
