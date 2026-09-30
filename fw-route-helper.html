@@ -167,7 +167,7 @@
   </section>
   <section id="configView" hidden>
     <div class="panel config-panel">
-      <div class="config-top"><div><h2 id="configHeading">路线配置</h2><p class="muted" id="configHint">从角色名单选择角色，再点击职业图标编辑路线。</p></div><button id="backTeam">队伍总览</button></div>
+      <div class="config-top"><div><h2 id="configHeading">路线配置</h2><p class="muted" id="configHint">选择角色编辑职业路线；同一级可选择多个职业。</p></div><button id="backTeam">返回总览</button></div>
       <details class="config-character-picker"><summary id="configCharacterSummary">从角色名单选择角色</summary><div class="config-character-list" id="configCharacterList"></div></details>
       <section class="config-editor" id="configEditor">
         <div class="config-route-tools"><label><span id="routeNameLabel">路线名称</span><input id="routeName" maxlength="24"></label><label><span id="editPathLabel">正在编辑</span><select id="editPathSelect"></select></label><label><span id="rankLabel">角色评级</span><select id="characterRank"><option value="">—</option><option>SS</option><option>S</option><option>A</option><option>B</option><option>C</option><option>D</option></select></label><button id="newCustomPath">＋ 新路线</button><button id="restoreDefaultRoute">还原推荐路线</button><button class="danger" id="deleteCustomRoute" hidden>删除路线</button><button class="primary" id="saveRoute">保存路线</button></div>
@@ -372,8 +372,8 @@ function renderChrome(){
  document.title=ja?"万紫千紅・兵種ルート育成アシスタント":"万缕千丝 · 职业路线升级助手";set("appTitle",document.title);set("subtitle",ja?"育成ルートと転職に必要な技能をまとめて確認":"培养路线与转职技能需求对照");set("languageCaption",ja?"表示":"语言");
  set("teamTab",ja?"部隊一覧":"队伍总览");set("configTab",ja?"ルート設定":"路线配置");document.getElementById("search").placeholder=ja?"キャラ名を検索":"搜索角色名称";
  set("export",ja?"バックアップを書き出し":"导出备份");set("import",ja?"バックアップを読み込む":"导入备份");set("rosterSummary",ja?"＋ キャラ一覧からこのルートへ追加":"＋ 从角色名单中加入当前线路");
- set("membersHeading",ja?`所持キャラ（${owned}人）`:`已拥有角色（${owned}）`);set("configHeading",ja?"ルート設定":"路线配置");set("configHint",ja?"キャラを選び、兵種アイコンを押してルートを編集します。同じ職級の兵種を複数選べます。":"选择角色后点击职业图标编辑路线；同一职级可选择多个职业节点。");
- set("backTeam",ja?"部隊一覧へ":"返回队伍总览");set("configCharacterSummary",ja?"キャラ一覧から選択":"从角色名单选择角色");set("routeNameLabel",ja?"ルート名":"路线名称");set("rankLabel",ja?"キャラ評価":"角色评级");set("editPathLabel",ja?"編集中のルート":"正在编辑");set("newCustomPath",ja?"＋ 新しいルート":"＋ 新路线");set("restoreDefaultRoute",ja?"おすすめを復元":"还原推荐路线");set("deleteCustomRoute",ja?"自作ルートを削除":"删除路线");set("saveRoute",ja?"ルートを保存":"保存路线");set("routeDialogTitle",ja?"育成ルートを選択":"选择培养路线");
+ set("membersHeading",ja?`所持キャラ（${owned}人）`:`已拥有角色（${owned}）`);set("configHeading",ja?"ルート設定":"路线配置");set("configHint",ja?"キャラを選んで兵種ルートを編集。同じ段階で複数選択できます。":"选择角色编辑职业路线；同一级可选择多个职业。");
+ set("backTeam",ja?"一覧へ戻る":"返回总览");set("configCharacterSummary",ja?"キャラ一覧から選択":"从角色名单选择角色");set("routeNameLabel",ja?"ルート名":"路线名称");set("rankLabel",ja?"キャラ評価":"角色评级");set("editPathLabel",ja?"編集中のルート":"正在编辑");set("newCustomPath",ja?"＋ 新しいルート":"＋ 新路线");set("restoreDefaultRoute",ja?"おすすめを復元":"还原推荐路线");set("deleteCustomRoute",ja?"自作ルートを削除":"删除路线");set("saveRoute",ja?"ルートを保存":"保存路线");set("routeDialogTitle",ja?"育成ルートを選択":"选择培养路线");
  document.getElementById("footer").innerHTML=ja?`データ出典：<a href="https://gamewith.jp/fefw" target="_blank" rel="noopener">GameWith｜ファイアーエムブレム 万紫千紅攻略</a>。入力データはこのブラウザのみに保存されます。「いずれか1つ」は1項目を満たせば達成と判定します。<br>ゲーム画像と名称の著作権は © Nintendo / INTELLIGENT SYSTEMS に帰属します。本サイトは紹介・攻略目的のみで利用しています。`:`数据来源：<a href="https://gamewith.jp/fefw" target="_blank" rel="noopener">GameWith｜火焰纹章 万缕千丝攻略</a>。登记数据仅保存在此浏览器；“任选其一”会按任意一项达标判断。<br>游戏图像与名称版权归 © Nintendo / INTELLIGENT SYSTEMS 所有，本站仅作介绍与攻略用途。`;
 }
 document.getElementById("routes").onclick=e=>{const r=e.target.closest("[data-route]")?.dataset.route;if(r){active=r;render();}};
