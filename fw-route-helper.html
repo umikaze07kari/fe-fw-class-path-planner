@@ -50,6 +50,30 @@
  .class-icon{min-height:63px;padding:3px 1px}
  .class-icon .class-art{width:28px!important;height:28px!important}
  .class-icon b{font-size:8px;min-height:18px}
+}/* Five weapon-role columns: melee, bow, cavalry, flying cavalry, magic. */
+.class-chart{background:#f8f4eb;border-color:#c9bda9;box-shadow:0 7px 18px #17374612}
+.class-tier{grid-template-columns:108px minmax(0,1fr);background:#fffdf8;border-color:#d7cbb9}
+.class-tier-title{border-color:#d7cbb9;background:linear-gradient(145deg,#edf3f0,#e3ece8);color:#143444}
+.class-tier-title small{color:#8a6b35}
+.class-tier-options{grid-template-columns:repeat(5,minmax(0,1fr))!important;background:#fffdf8}
+.class-category{border-color:#d7cbb9!important;padding:7px 5px 8px}
+.class-category h4{color:#fff;margin-bottom:6px}
+.class-category-melee{background:#fae9e6}.class-category-melee h4{background:#a94d43}
+.class-category-bow{background:#fbf2d8}.class-category-bow h4{background:#b98920}
+.class-category-mounted{background:#e7f1e7}.class-category-mounted h4{background:#4f865a}
+.class-category-flying{background:#e4eef7}.class-category-flying h4{background:#3977a8}
+.class-category-magic{background:#eee7f5}.class-category-magic h4{background:#73549b}
+.class-category-empty{color:#a89d8c}
+.class-icon{border-color:#cbbfae;background:rgba(255,253,248,.9);box-shadow:0 2px 5px #17374616}
+.class-icon:hover{border-color:#b98231;box-shadow:0 4px 9px #17374622}
+.class-icon.active{border-color:#26725d;background:#e8f7ef;box-shadow:inset 0 0 0 2px #65aa91,0 3px 8px #17374620}
+@media(max-width:720px){
+ .class-tier{grid-template-columns:54px minmax(0,1fr)}
+ .class-tier-options{grid-template-columns:repeat(5,minmax(0,1fr))!important}
+ .class-category{padding:4px 1px 5px}
+ .class-category h4{font-size:8px}
+ .class-icon .class-art{width:25px!important;height:25px!important}
+ .class-icon b{font-size:7.5px}
 }</style>
 </head>
 <body>
@@ -295,8 +319,8 @@ function renderConfig(){
  document.getElementById("configCharacterList").innerHTML=groups.map(g=>{const chars=CHARACTERS.filter(x=>saviorRosterGroup(x)===g[0]);return chars.length?'<section class="config-character-group"><h3>'+esc(isJa()?g[2]:g[1])+'</h3><div class="config-character-grid">'+chars.map(x=>'<button class="config-character '+(x.id===configCharacterId?"active":"")+'" data-config-character="'+x.id+'"><img class="avatar" src="'+portrait(x)+'" alt=""><b>'+esc(charName(x))+'</b>'+(state.characterRanks?.[x.id]?'<i class="rank-badge rank-'+state.characterRanks[x.id]+'">'+state.characterRanks[x.id]+'</i>':'')+'<small>'+esc(saviorRosterDescription(x,recruitInfo(x,"救世篇").label))+'</small></button>').join("")+'</div></section>':"";}).join("");
  const refs=configRefs(c);document.getElementById("routeName").value=draftName;document.getElementById("characterRank").value=state.characterRanks?.[c.id]||"";document.getElementById("editPathSelect").innerHTML=refs.map(r=>'<option value="'+r.kind+':'+r.index+'" '+(r.kind===configRef.kind&&r.index===configRef.index?"selected":"")+'>'+esc(r.path.src||"路线 "+(r.index+1))+'</option>').join("");
  const tiers=[["初级","初級","名声 Lv1"],["中级","中級","名声 Lv4"],["上级","上級","名声 Lv8"],["最上级","最上級","推荐 Lv45"],["神将","神将","特殊素材"]];
- const categoryOf=x=>/飞|龙|翼/.test(x.name)?"flying":/重装|甲|要塞|巨型/.test(x.name)?"heavy":/骑|马|鸵|车|象|瓦尔基|墓志铭/.test(x.name)?"mounted":"foot";
- const cats=[["foot",isJa()?"歩兵":"步兵"],["mounted",isJa()?"騎兵":"骑兵"],["flying",isJa()?"飛行":"飞行"],["heavy",isJa()?"重装":"重装"]];
+ const categoryOf=x=>/诅咒|萨满|牧师|先知|主教|游唱诗人|锻造师|德鲁伊|贤士|瓦尔基|高阶墓志铭|武僧|圣转|圣转神将/.test(x.name)?"magic":/天翼|驭龙|飞龙/.test(x.name)?"flying":/飞鸵|轻骑|战车|骑甲|森林骑士|荣光骑士|神鸵|重装骑兵|战象|弓骑士|奥利哈铁骑|英勇骑士|烈骏/.test(x.name)?"mounted":/猎兵|弓箭手|狙击手|游侠|宗师射手|探影者|绝祸|神乐/.test(x.name)?"bow":"melee";
+ const cats=[["melee",isJa()?"近接":"近战"],["bow",isJa()?"弓兵":"弓箭"],["mounted",isJa()?"騎兵":"骑兵"],["flying",isJa()?"飛行騎兵":"飞骑"],["magic",isJa()?"魔法":"魔法"]];
  const iconOf=x=>"img/classes/class_"+(CLASSES.indexOf(x)+1)+".png";
  document.getElementById("classChart").innerHTML=tiers.map(t=>'<section class="class-tier"><div class="class-tier-title"><span>'+esc(isJa()?t[1]:t[0])+'</span><small>'+t[2]+'</small></div><div class="class-tier-options">'+cats.map(cat=>{const jobs=CLASSES.filter(x=>x.tier===t[0]&&categoryOf(x)===cat[0]);return '<section class="class-category class-category-'+cat[0]+'"><h4>'+cat[1]+'</h4><div class="class-category-jobs">'+(jobs.length?jobs.map(x=>'<button class="class-icon '+(draftSteps.includes(x.id)?"active":"")+'" data-class-toggle="'+x.id+'" data-tier="'+x.tier+'" title="'+esc(x.requirement||"")+'"><img class="class-art" src="'+iconOf(x)+'" alt="'+esc(className(x))+'" loading="lazy"><b>'+esc(className(x))+'</b><span class="tick">'+(draftSteps.includes(x.id)?"✓":"")+'</span></button>').join(""):'<span class="class-category-empty">—</span>')+'</div></section>';}).join("")+'</div></section>').join("");
 }
