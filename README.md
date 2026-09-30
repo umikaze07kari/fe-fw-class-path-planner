@@ -19,7 +19,7 @@
 
 发布后直接打开网页即可使用。所有登记数据只会保存在访问者自己的浏览器中。
 
-资料参考：[角色一览](https://fire-emblem-fw.site/characters.html)、[职业一览](https://fire-emblem-fw.site/classes.html)、[GameWith 角色表](https://gamewith.jp/fefw/573109)、[GameWith 兵种表](https://gamewith.jp/fefw/573025)。
+数据来源：[GameWith｜火焰纹章 万缕千丝攻略](https://gamewith.jp/fefw)。
 
 游戏图像与名称版权归 © Nintendo / INTELLIGENT SYSTEMS 所有；本仓库仅作介绍与攻略用途。
 
@@ -39,6 +39,6 @@
 
 公開後はウェブページを開くだけで利用できます。入力データは利用者自身のブラウザにのみ保存されます。
 
-参考資料：[キャラ一覧](https://fire-emblem-fw.site/characters.html)、[兵種一覧](https://fire-emblem-fw.site/classes.html)、[GameWith キャラ一覧](https://gamewith.jp/fefw/573109)、[GameWith 兵種一覧](https://gamewith.jp/fefw/573025)。
+データ出典：[GameWith｜ファイアーエムブレム 万紫千紅攻略](https://gamewith.jp/fefw)。
 
 ゲーム画像と名称の著作権は © Nintendo / INTELLIGENT SYSTEMS に帰属します。本リポジトリは紹介・攻略目的のみで利用しています。
