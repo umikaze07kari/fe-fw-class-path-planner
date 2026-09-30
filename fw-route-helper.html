@@ -19,7 +19,9 @@
 /* Route creation lives in the route selector, so the member row stays compact. */
 .compact-members{min-width:1115px}.compact-head,.compact-member{grid-template-columns:100px 85px 450px minmax(370px,1fr) 54px}
 @media(max-width:720px){.compact-members{min-width:0}.compact-member{grid-template-columns:minmax(0,1fr) minmax(84px,100px) auto;gap:8px 6px}.compact-route{grid-column:2;grid-row:1}.compact-member .danger{grid-column:3;grid-row:1}.quick-skills,.node-line{grid-column:1/4}.char-list{grid-template-columns:repeat(2,minmax(0,1fr));gap:3px;padding:5px}.char{grid-template-columns:24px minmax(0,1fr) 48px;column-gap:4px;padding:4px}.char .avatar{width:24px;height:24px}.char>span{font-size:12px}.char small{font-size:10px}.char button{width:48px;min-width:48px;padding:3px 2px;font-size:11px}}
-</style>
+.routes{grid-template-columns:repeat(5,minmax(0,1fr))}.route.route-4{color:#47747a}.route.route-4.active{background:#47747a;border-color:#47747a;color:#fff}
+@media(max-width:720px){.routes{grid-template-columns:repeat(5,minmax(0,1fr));gap:3px}.route{font-size:12px;padding:7px 1px}.route small{font-size:9px}}.route-label{display:none}.savior-list{display:block}.savior-group{padding:8px 0 10px;border-bottom:1px dashed var(--line)}.savior-group:last-child{border-bottom:0}.savior-group h3{margin:0 0 5px;padding:0 3px;color:var(--navy);font-size:13px}.savior-group-characters{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:5px}
+@media(max-width:720px){.compact-member{grid-template-columns:minmax(0,1fr) 42px minmax(72px,96px) auto;gap:8px 4px}.compact-route{grid-column:2/4;grid-row:1;display:flex;align-items:center;gap:3px}.compact-route .route-label{display:block;flex:none;font-size:10px;color:var(--muted);font-weight:700;white-space:nowrap}.compact-route select{flex:1;min-width:0}.compact-member .danger{grid-column:4;grid-row:1}.quick-skills,.node-line{grid-column:1/5}.savior-group-characters{grid-template-columns:repeat(2,minmax(0,1fr));gap:3px}.savior-group h3{font-size:12px}}</style>
 </head>
 <body>
 <header><h1 id="appTitle">万缕千丝 · 职业路线升级助手</h1><p id="subtitle">培养路线与转职技能需求对照</p><label class="language-picker"><span id="languageCaption">语言</span><select id="language" aria-label="语言"><option value="zh">简体中文</option><option value="ja">日本語</option></select></label></header>
@@ -34,7 +36,7 @@
   <section id="configView" hidden>
     <div class="panel config-panel">
       <div class="config-form"><label><span id="configCharacterLabel">角色</span><select id="configCharacter"></select></label><label><span id="classPickerLabel">职业节点</span><select id="classPicker"></select></label><button id="addClassNode">＋ 加入节点</button><button class="primary" id="saveCustomPath">保存自定义路线</button></div>
-      <p class="muted" id="configHint">按顺序添加职业节点后保存。自定义路线会出现在队伍总览的“推荐路线”下拉框中。</p>
+      <p class="muted" id="configHint">按顺序添加职业节点后保存。自定义路线会出现在队伍总览的“培养路线”下拉框中。</p>
       <div class="builder" id="pathBuilder"></div>
       <div class="config-existing" id="configExisting"></div>
     </div>
@@ -49,13 +51,13 @@ const JP_CHARACTER_NAMES = ["救世主","カイ","ディートリヒ","セオド
 const JP_CLASS_NAMES = ["平民","貴族","闘士","猟兵","兵士","飛駝兵","呪い師","剣士","ブリガンド","セスタス","アーチャー","ローグ","重装歩兵","軽騎兵","戦車兵","騎甲駝兵","シャーマン","プリースト","天翼兵","シドー","ウォーリアー","スナイパー","フォレストナイト","ヘヴィアーマー","バーディンガー","ウァテス","ビショップ","カラドリオス","ガーディアン","踊り子","ドラグーン","トルバドール","カタフラクト","レンジャー","戦象兵","鍛冶師","バトルマスター","マスターアーチ","シャドーシーカー","ホーリーランサー","フォートレス","オリハルディア","ドラゴンマスター","ドルイド","ワイズマン","バトルモンク","聖天翼兵","グレートナイト","ソードマスター","ハイエピタフ","ボウナイト","ヴァルキュリウム","ザ・ブレイド","ジ・アプサラス","ジ・エターナル","ザ・ゴッドハンド","ザ・カラミティ","ザ・トライデント","ザ・キャバリアー","ジ・アヴァタール"];
 CHARACTERS.forEach((c,i)=>c.jpName=JP_CHARACTER_NAMES[i]||c.name);
 CLASSES.forEach((c,i)=>c.jpName=JP_CLASS_NAMES[i]||c.name);
-const ROUTES = ["凯伊篇","迪托利希篇","赛奥朵拉篇","蕾达篇"];
+const ROUTES = ["凯伊篇","迪托利希篇","赛奥朵拉篇","蕾达篇","救世篇"];
 const SKILLS = ["剑术","枪术","斧术","箭术","格斗术","黑魔术","白魔术","指挥术","步兵术","马术","重装术","飞行术"];
 const GRADES = ["—","E","E+","D","D+","C","C+","B","B+","A","A+","S"];
 const gradeValue = g => Math.max(0, GRADES.indexOf(g || "—"));
 const characterById = Object.fromEntries(CHARACTERS.map(c=>[c.id,c]));
 const classById = Object.fromEntries(CLASSES.map(c=>[c.id,c]));
-const JP_ROUTES = {"凯伊篇":"カイ編","迪托利希篇":"ディートリヒ編","赛奥朵拉篇":"セオドラ編","蕾达篇":"レダ編"};
+const JP_ROUTES = {"凯伊篇":"カイ編","迪托利希篇":"ディートリヒ編","赛奥朵拉篇":"セオドラ編","蕾达篇":"レダ編","救世篇":"救世主編"};
 const JP_SKILLS = {"剑术":"剣術","枪术":"槍術","斧术":"斧術","箭术":"弓術","格斗术":"格闘術","黑魔术":"黒魔術","白魔术":"白魔術","指挥术":"指揮術","步兵术":"歩兵術","马术":"馬術","重装术":"重装術","飞行术":"飛行術"};
 const JP_TIERS = {"基础":"基本職","初级":"初級職","中级":"中級職","上级":"上級職","最上级":"最上級職","神将":"神将職"};
 const isJa = () => state?.lang === "ja";
@@ -63,7 +65,7 @@ const charName = c => isJa() ? (c?.jpName || c?.name || "") : (c?.name || "");
 const className = (c,fallback="") => isJa() ? (c?.jpName || fallback || c?.name || "") : (c?.name || fallback || "");
 const stepName = step => className(classById[step?.classId],step?.name || "");
 const routeName = route => isJa() ? (JP_ROUTES[route] || route) : route;
-const mobileRouteName = route => isJa() ? ({"凯伊篇":"カイ","迪托利希篇":"ディー","赛奥朵拉篇":"セオ","蕾达篇":"レダ"}[route] || routeName(route)) : routeName(route);
+const mobileRouteName = route => isJa() ? ({"凯伊篇":"カイ","迪托利希篇":"ディー","赛奥朵拉篇":"セオ","蕾达篇":"レダ","救世篇":"救世"}[route] || routeName(route)) : ({"凯伊篇":"凯伊","迪托利希篇":"迪托","赛奥朵拉篇":"赛奥","蕾达篇":"蕾达","救世篇":"救世"}[route] || routeName(route));
 const skillName = skill => isJa() ? (JP_SKILLS[skill] || skill) : skill;
 const skillShort = skill => isJa() ? ({"剑术":"剣","枪术":"槍","斧术":"斧","箭术":"弓","格斗术":"格","黑魔术":"黒","白魔术":"白","指挥术":"指","步兵术":"歩","马术":"馬","重装术":"重","飞行术":"飛"}[skill] || skill[0]) : skill[0];
 const tierName = tier => isJa() ? (JP_TIERS[tier] || tier) : tier;
@@ -72,7 +74,8 @@ const tierSlot = tier => ({"初级":1,"中级":2,"上级":3,"最上级":4,"神�
 const portrait = c => c?.portrait ? "https://fire-emblem-fw.site/" + c.portrait.replace(/^\//,"") : "";
 const isLatePart1 = c => !c || c.part1NoScout || Object.keys(c.storyJoin||{}).some(k=>!k.endsWith("篇")) || /^(序幕|第[23]部)/.test((c.joinChapter||[])[0]||"");
 function isRouteAvailable(c, route) {
-  if (isLatePart1(c)) return false;
+  if (route==="救世篇") return Boolean(c);
+if (isLatePart1(c)) return false;
   const routeName=route.replace(/篇$/,""), n=+(c.id||"").replace("chr-","");
   if ([4,5,6,7].includes(n)) return c.name===routeName;
   const sc=c.scoutCond||[];
@@ -80,6 +83,11 @@ function isRouteAvailable(c, route) {
 }
 function recruitInfo(c, route) {
   const routeName=route.replace(/篇$/,""), n=+(c.id||"").replace("chr-","");
+  if (route==="救世篇") {
+    if (n===1) return {order:-2,label:isJa()?"物語加入":"剧情加入"};
+    if ([4,5,6,7].includes(n) || isLatePart1(c)) return {order:100,label:isJa()?"隠し・後期加入":"隐藏 · 后期加入"};
+    return {order:50,label:isJa()?"スカウト加入":"挖角加入"};
+  }
   if ([4,5,6,7].includes(n) && c.name===routeName) return {order:-1,label:isJa()?"物語加入":"剧情加入"};
   if (c.storyJoin?.[route]) return {order:0,label:(isJa()?"物語 ":"剧情 ")+c.storyJoin[route]};
   const entry=(c.scoutCond||[]).find(x=>typeof x==="object" ? x.route===routeName : String(x).startsWith(routeName+"："));
@@ -94,6 +102,26 @@ ROUTES.forEach(r=>state.teams[r] ||= []);
 state.customPaths ||= {};
 state.lang = state.lang === "ja" ? "ja" : "zh";
 ROUTES.forEach(r=>state.teams[r]=state.teams[r].filter(m=>isRouteAvailable(characterById[m.id],r)));
+state.seededRoutes ||= {};
+const MAIN_ROUTE_DEFAULTS = {"凯伊篇":"chr-4","迪托利希篇":"chr-5","赛奥朵拉篇":"chr-6","蕾达篇":"chr-7"};
+function defaultMemberIds(route) {
+  if (route==="救世篇") return ["chr-1","chr-35","chr-34"];
+  const hero=MAIN_ROUTE_DEFAULTS[route];
+  return CHARACTERS.filter(c=>c.id===hero || Boolean(c.storyJoin?.[route])).map(c=>c.id);
+}
+function seedDefaultTeams() {
+  for (const route of ROUTES) {
+    if (state.seededRoutes[route]) continue;
+    for (const id of defaultMemberIds(route)) {
+      const c=characterById[id];
+      if (!c || !isRouteAvailable(c,route) || state.teams[route].some(m=>m.id===id)) continue;
+      const paths=pathOptions(c);
+      state.teams[route].push({id,path:0,target:(paths[0]?.steps?.length||1)-1,skills:blankSkills()});
+    }
+    state.seededRoutes[route]=true;
+  }
+}
+seedDefaultTeams();
 save();
 let active = ROUTES[0];
 function save(){localStorage.setItem("fw-route-helper",JSON.stringify(state));}
@@ -147,16 +175,56 @@ function memberCard(m){
  const pathSelect=`<select data-action="path" data-id="${c.id}">${paths.map((x,i)=>`<option value="${i}" ${i===m.path?"selected":""}>${esc(x.steps?.length?stepName(x.steps.at(-1)):(isJa()?"ルート ":"路线 ")+(i+1))}</option>`).join("")}<option value="custom">${isJa()?"＋ ルートを自作…":"＋ 自定义路线…"}</option></select>`;
  const focus=skillFocus(p,m.skills);
  const skillInputs=SKILLS.map(s=>{const target=focus[s], state=target?(gradeValue(m.skills[s])<gradeValue(target)?"need":"met"):"";const tip=target?`${skillName(s)}：${isJa()?"現在":"当前"} ${m.skills[s]}，${isJa()?"目標":"路线目标"} ${target}`:skillName(s);return `<label class="${state}" title="${tip}">${skillShort(s)}<select data-action="skill" data-id="${c.id}" data-skill="${s}">${GRADES.map(g=>`<option ${m.skills[s]===g?"selected":""}>${g}</option>`).join("")}</select></label>`;}).join("");
- return `<article class="compact-member"><div class="compact-who"><img class="avatar" src="${portrait(c)}" alt="" loading="lazy"><b title="${esc(charName(c))}">${esc(charName(c))}</b></div><div class="compact-route">${pathSelect}</div><div class="quick-skills">${skillInputs}</div><div class="node-line">${compactNodes(p,m.skills)}</div><button class="danger" data-action="remove" data-id="${c.id}">${isJa()?"外す":"移出"}</button></article>`;
+ return `<article class="compact-member"><div class="compact-who"><img class="avatar" src="${portrait(c)}" alt="" loading="lazy"><b title="${esc(charName(c))}">${esc(charName(c))}</b></div><div class="compact-route"><span class="route-label">${isJa()?"育成ルート":"培养路线"}</span>${pathSelect}</div><div class="quick-skills">${skillInputs}</div><div class="node-line">${compactNodes(p,m.skills)}</div><button class="danger" data-action="remove" data-id="${c.id}">${isJa()?"外す":"移出"}</button></article>`;
 }
-function render(){
+const SAVIOR_ROSTER_GROUPS = [
+  ["opening","开篇伙伴","序章の仲間",["chr-1","chr-35","chr-34"]],
+  ["kai","凯伊路线","カイルート",["chr-4","chr-8","chr-9","chr-10"]],
+  ["dietrich","迪托利希路线","ディートリヒルート",["chr-5","chr-11","chr-12","chr-13"]],
+  ["theodora","赛奥朵拉路线","セオドラルート",["chr-6","chr-14","chr-15","chr-16","chr-17"]],
+  ["leda","蕾达路线","レダルート",["chr-7","chr-18","chr-19","chr-20","chr-21"]],
+  ["elite","大剑斗祭八强","大剣闘祭ベスト8",["chr-22","chr-23","chr-24","chr-25"]]
+];
+function rosterItem(entry) {
+ const c=entry.c, info=entry.info, owned=state.teams[active].some(x=>x.id===c.id);
+ const label=active==="救世篇" ? saviorRosterDescription(c,info.label) : info.label;
+ return '<div class="char"><img class="avatar" src="'+portrait(c)+'" alt="" loading="lazy"><span title="'+esc(charName(c))+'">'+esc(charName(c))+'</span><small>'+esc(label)+'</small><button class="'+(owned?'':'primary')+'" data-add="'+c.id+'" '+(owned?'disabled':'')+'>'+(owned?(isJa()?'加入済':'已加入'):(isJa()?'加入':'加入'))+'</button></div>';
+}
+function saviorRosterGroup(c) {
+ for (const group of SAVIOR_ROSTER_GROUPS) if (group[3].includes(c.id)) return group[0];
+ return isLatePart1(c) ? "hidden" : "other";
+}
+function saviorRosterDescription(c, fallback) {
+ const group=saviorRosterGroup(c);
+ if (["kai","dietrich","theodora","leda"].includes(group)) {
+   const main={"kai":"chr-4","dietrich":"chr-5","theodora":"chr-6","leda":"chr-7"}[group];
+   if (c.id===main) return isJa()?"ルート解放・外伝加入":"开启路线 · 外传加入";
+   return isJa()?"ルート解放・スカウト加入":"开启路线 · 挖角加入";
+ }
+ return fallback;
+}
+function renderRosterList(list) {
+ const charList=document.getElementById("charList");
+ const grouped=active==="救世篇";
+ charList.classList.toggle("savior-list",grouped);
+ if (!grouped) return list.map(rosterItem).join("");
+ const groups=[
+   ...SAVIOR_ROSTER_GROUPS,
+   ["other","其他人物","その他の第1部キャラ",[]],
+   ["hidden","隐藏 · 后期加入","隠し・後期加入",[]]
+ ];
+ return groups.map(group=>{
+   const rows=list.filter(entry=>saviorRosterGroup(entry.c)===group[0]).sort((a,b)=>{const ai=group[3].indexOf(a.c.id), bi=group[3].indexOf(b.c.id);return ai<0||bi<0?0:ai-bi;});
+   if (!rows.length) return "";
+   return '<section class="savior-group"><h3>'+esc(isJa()?group[2]:group[1])+'</h3><div class="savior-group-characters">'+rows.map(rosterItem).join("")+'</div></section>';
+ }).join("");
+}function render(){
  renderChrome();
  document.getElementById("routes").innerHTML=ROUTES.map((r,i)=>`<button class="route route-${i} ${r===active?"active":""}" data-route="${r}"><span class="route-full">${routeName(r)}</span><span class="route-short">${mobileRouteName(r)}</span><small> · ${state.teams[r].length}</small></button>`).join("");
  const q=document.getElementById("search").value.trim(), available=CHARACTERS.filter(c=>isRouteAvailable(c,active)).map(c=>({c,info:recruitInfo(c,active)})).sort((a,b)=>a.info.order-b.info.order||charName(a.c).localeCompare(charName(b.c),isJa()?"ja":"zh-CN")), list=available.filter(x=>!q||c.name.includes(q)||charName(c).includes(q));
- document.getElementById("charList").innerHTML=list.map(({c,info})=>`<div class="char"><img class="avatar" src="${portrait(c)}" alt="" loading="lazy"><span title="${esc(charName(c))}">${esc(charName(c))}</span><small>${esc(info.label)}</small><button class="${state.teams[active].some(x=>x.id===c.id)?"":"primary"}" data-add="${c.id}" ${state.teams[active].some(x=>x.id===c.id)?"disabled":""}>${state.teams[active].some(x=>x.id===c.id)?(isJa()?"加入済":"已加入"):(isJa()?"加入":"加入")}</button></div>`).join("");
- document.getElementById("count").textContent=isJa()?`${list.length} / ${available.length} 人`:`${list.length} / ${available.length} 名可用角色`;
+ document.getElementById("charList").innerHTML=renderRosterList(list); document.getElementById("count").textContent=isJa()?`${list.length} / ${available.length} 人`:`${list.length} / ${available.length} 名可用角色`;
  const nodeHead=isJa()?`<div class="node-head"><b>兵種・必要技能</b><span>初 Lv5</span><span>中 Lv20</span><span>上 Lv35</span><span>最 Lv45</span><span>神 特殊</span></div>`:`<div class="node-head"><b>职业节点 · 技能门槛</b><span>初 Lv5</span><span>中 Lv20</span><span>上 Lv35</span><span>最 Lv45</span><span>神 特殊</span></div>`;
- const team=state.teams[active];document.getElementById("members").innerHTML=team.length?`<div class="member-scroll"><div class="compact-members"><div class="compact-head"><span>${isJa()?"キャラ":"角色"}</span><span>${isJa()?"おすすめルート":"推荐路线"}</span><span>${isJa()?"技能Lv":"技能等级"}</span>${nodeHead}<span></span></div>${team.map(memberCard).join("")}</div></div>`:`<div class="panel empty">${isJa()?`まだキャラがいません。上のリストから「${routeName(active)}」に追加してください。`:`还没有登记角色。展开上方名单，将角色加入“${active}”。`}</div>`;
+ const team=state.teams[active];document.getElementById("members").innerHTML=team.length?`<div class="member-scroll"><div class="compact-members"><div class="compact-head"><span>${isJa()?"キャラ":"角色"}</span><span>${isJa()?"育成ルート":"培养路线"}</span><span>${isJa()?"技能Lv":"技能等级"}</span>${nodeHead}<span></span></div>${team.map(memberCard).join("")}</div></div>`:`<div class="panel empty">${isJa()?`まだキャラがいません。上のリストから「${routeName(active)}」に追加してください。`:`还没有登记角色。展开上方名单，将角色加入“${active}”。`}</div>`;
 }
 function renderChrome(){
  const ja=isJa(); document.documentElement.lang=ja?"ja":"zh-CN";
@@ -172,7 +240,7 @@ function renderChrome(){
  document.getElementById("membersHeading").textContent=ja?"所持キャラ":"已拥有角色";
  document.getElementById("configCharacterLabel").textContent=ja?"キャラ":"角色"; document.getElementById("classPickerLabel").textContent=ja?"兵種ノード":"职业节点";
  document.getElementById("addClassNode").textContent=ja?"＋ ノードを追加":"＋ 加入节点"; document.getElementById("saveCustomPath").textContent=ja?"自作ルートを保存":"保存自定义路线";
- document.getElementById("configHint").textContent=ja?"兵種ノードを順番に追加して保存します。自作ルートは部隊一覧の「おすすめルート」に表示されます。":"按顺序添加职业节点后保存。自定义路线会出现在队伍总览的“推荐路线”下拉框中。";
+ document.getElementById("configHint").textContent=ja?"兵種ノードを順番に追加して保存します。自作ルートは部隊一覧の「育成ルート」に表示されます。":"按顺序添加职业节点后保存。自定义路线会出现在队伍总览的“培养路线”下拉框中。";
  document.getElementById("footer").innerHTML=ja?`データ出典：<a href="https://fire-emblem-fw.site/characters.html" target="_blank" rel="noopener">キャラ一覧</a>、<a href="https://fire-emblem-fw.site/classes.html" target="_blank" rel="noopener">兵種一覧</a>（取得日：2026-09-30）。入力データはこのブラウザのみに保存されます。「いずれか1つ」は1項目を満たせば達成と判定します。<br>ゲーム画像と名称の著作権は © Nintendo / INTELLIGENT SYSTEMS に帰属します。本サイトは紹介・攻略目的のみで利用しています。`:`数据来源：<a href="https://fire-emblem-fw.site/characters.html" target="_blank" rel="noopener">角色一览</a>、<a href="https://fire-emblem-fw.site/classes.html" target="_blank" rel="noopener">职业一览</a>（获取日期：2026-09-30）。登记数据仅保存在此浏览器；“任选其一”会按任意一项达标判断。<br>游戏图像与名称版权归 © Nintendo / INTELLIGENT SYSTEMS 所有，本站仅作介绍与攻略用途。`;
 }
 document.getElementById("routes").onclick=e=>{const r=e.target.closest("[data-route]")?.dataset.route;if(r){active=r;render();}};
