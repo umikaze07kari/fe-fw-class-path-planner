@@ -208,7 +208,7 @@
 }</style>
 </head>
 <body>
-<header><h1 id="appTitle">万缕千丝 · 角色培养规划助手</h1><p id="subtitle">训练规划、职业路线、挖角与因果融合模拟</p><label class="language-picker"><span id="languageCaption">语言</span><select id="language" aria-label="语言"><option value="zh">简体中文</option><option value="ja">日本語</option></select></label><div class="view-global-actions header-actions"><button id="export">导出备份</button><button id="import">导入备份</button><input id="importFile" type="file" accept="application/json" hidden></div></header>
+<header><h1 id="appTitle">万缕千丝 · 角色培养助手</h1><p id="subtitle">训练规划、职业路线、挖角与融合模拟</p><label class="language-picker"><span id="languageCaption">语言</span><select id="language" aria-label="语言"><option value="zh">简体中文</option><option value="ja">日本語</option></select></label><div class="view-global-actions header-actions"><button id="export">导出备份</button><button id="import">导入备份</button><input id="importFile" type="file" accept="application/json" hidden></div></header>
 <main class="wrap">
   <nav class="view-tabs"><button class="active" data-view="team" id="teamTab">训练规划</button><button data-view="config" id="configTab">职业路线配置·成长模拟</button></nav>
   <section id="teamView">
@@ -445,7 +445,7 @@ function renderChrome(){
  const ja=isJa(),set=(id,value)=>{const el=document.getElementById(id);if(el)el.textContent=value},owned=(state.teams[active]||[]).length;
  document.documentElement.lang=ja?"ja":"zh-CN";document.getElementById("language").value=state.lang;
  set("arenaCourseHeading",ja?"闘技場コース":"竞技场课程");set("arenaCourseNone",ja?"すべて":"全部");set("arenaCourseA",ja?"歩兵":"步兵");set("arenaCourseB",ja?"重装兵":"重装兵");set("arenaCourseC",ja?"魔法兵":"魔法兵");set("arenaCourseD",ja?"騎兵飛行":"骑兵飞行");set("arenaCourseE",ja?"闘兵":"斗兵");document.getElementById("arenaCourseFilter").setAttribute("aria-label",ja?"闘技場コース":"竞技场课程");
- document.title=ja?"万紫千紅・育成プラン":"万缕千丝 · 角色培养规划助手";set("appTitle",document.title);set("subtitle",ja?"部隊・兵種・スカウト・因果融合":"训练规划、职业路线、挖角与因果融合模拟");set("languageCaption",ja?"表示":"语言");
+ document.title=ja?"万紫千紅・育成プラン":"万缕千丝 · 角色培养助手";set("appTitle",document.title);set("subtitle",ja?"部隊・兵種・スカウト・因果融合":"训练规划、职业路线、挖角与融合模拟");set("languageCaption",ja?"表示":"语言");
   set("teamTab",ja?"部隊一覧":"训练规划");set("configTab",ja?"ルート設定・成長シミュレーション":"职业路线配置·成长模拟");
  set("export",ja?"バックアップを書き出し":"导出备份");set("import",ja?"バックアップを読み込む":"导入备份");set("rosterSummary",ja?"＋ 現在のルートにキャラ追加":"＋ 添加角色至当前线路");
   set("membersHeading",ja?`所持キャラ（${owned}人）`:`已拥有角色（${owned}）`);set("configHeading",ja?"ルート設定":"职业路线配置");set("configHint",ja?"兵種ルートを編集（同階級は複数選択可）":"选择角色编辑职业路线；同一级可选择多个职业。");
