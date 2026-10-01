@@ -155,7 +155,7 @@
  .config-route-tools>button{flex:1 1 auto;min-width:0;min-height:31px!important;padding:5px 5px;font-size:10px;line-height:1.15}
 }/* Global backup actions and direct route editing. */
 .view-global-actions{display:flex;gap:5px;margin-left:auto}.view-global-actions button{padding:6px 9px;background:#fffdf8;color:var(--navy);font-size:11px;white-space:nowrap}.roster summary{display:flex;align-items:center;gap:8px}.roster-count{margin-left:auto;white-space:nowrap}.compact-route{display:flex;align-items:center;gap:4px;min-width:0}.compact-route select{flex:1;min-width:0}.route-edit{flex:0 0 auto;padding:4px 6px;border-color:#8db4a8;background:#e7f1ed;color:#205b4c;font-size:10px;white-space:nowrap}.route-edit:hover{border-color:#4d8e7b;background:#d9ebe4}@media(max-width:720px){.view-tabs{gap:4px;align-items:center}.view-tabs>[data-view]{padding:6px 8px;font-size:11px}.view-global-actions{gap:3px}.view-global-actions button{padding:5px 5px;font-size:9px}.roster summary{padding:8px 10px;font-size:12px}.roster-count{font-size:9px}.route-edit{padding:4px 5px;font-size:9px}}/* Arena course skill-gap filter. */
-.arena-course-filter{margin-top:10px}.arena-course-controls{display:flex;align-items:center;gap:4px;overflow-x:auto;white-space:nowrap;scrollbar-width:thin}
+.arena-course-filter{margin-top:10px}.arena-course-controls{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));align-items:center;gap:4px;width:100%;white-space:nowrap}
 .arena-course-filter+h2{margin-top:14px}.arena-course-filter strong{flex:0 0 auto;padding:0 4px;color:var(--navy);font-size:11px}
 .arena-course-filter label{display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;min-height:29px;padding:4px 9px;border:1px solid #b8c9c8;border-radius:7px;background:#edf3f1;color:var(--navy);font-size:10px;font-weight:700;cursor:pointer;transition:background .15s,border-color .15s,color .15s}
 .arena-course-filter label:has(input:checked){border-color:var(--navy);background:var(--navy);color:#fff}
@@ -168,11 +168,11 @@
 .arena-guide-skills i{font-style:normal}.arena-guide-skills b{width:8px;color:transparent;font-size:12px;line-height:1}
 .arena-guide-skills span.active b{color:#b56a14}
 .quick-skills label.arena-trained{position:relative;z-index:0;outline:2px solid #d4a13c;outline-offset:-1px;box-shadow:inset 0 3px 0 #efc45b,0 1px 5px #b9823138;font-weight:900}
-@media(max-width:720px){.arena-course-controls{gap:3px}.arena-course-filter+h2{margin-top:12px}.arena-course-filter strong{font-size:9px}.arena-course-filter label{min-height:27px;padding:3px 7px;font-size:9px}.arena-course-filter input{width:1px;height:1px}.arena-guide-row{grid-template-columns:minmax(0,1fr) 42px minmax(72px,96px) auto;column-gap:4px;margin-top:4px;padding:5px 10px 0}.arena-guide-label{display:none}.arena-guide-skills{grid-column:1/5;gap:2px;padding-right:0;border-right:0}.arena-guide-skills span{height:25px;font-size:8px}.arena-guide-skills i{font-style:normal}.arena-guide-skills b{width:7px;font-size:11px;line-height:1}.quick-skills label.arena-trained{outline-width:1px;outline-offset:0;box-shadow:0 0 0 2px #f4d98a66,0 1px 5px #b9823144}}/* Flattened arena and two-card route configuration. */
+@media(max-width:720px){.arena-course-controls{gap:3px}.arena-course-controls label{padding-inline:1px;font-size:9px;overflow:hidden;text-overflow:ellipsis}.arena-course-filter+h2{margin-top:12px}.arena-course-filter strong{font-size:9px}.arena-course-filter label{min-height:27px;padding:3px 7px;font-size:9px}.arena-course-filter input{width:1px;height:1px}.arena-guide-row{grid-template-columns:minmax(0,1fr) 42px minmax(72px,96px) auto;column-gap:4px;margin-top:4px;padding:5px 10px 0}.arena-guide-label{display:none}.arena-guide-skills{grid-column:1/5;gap:2px;padding-right:0;border-right:0}.arena-guide-skills span{height:25px;font-size:8px}.arena-guide-skills i{font-style:normal}.arena-guide-skills b{width:7px;font-size:11px;line-height:1}.quick-skills label.arena-trained{outline-width:1px;outline-offset:0;box-shadow:0 0 0 2px #f4d98a66,0 1px 5px #b9823144}}/* Flattened arena and two-card route configuration. */
 #arenaCourseHeading{margin-bottom:8px}
 .arena-course-filter{margin-top:0;padding:8px 10px;border-radius:9px;background:var(--card);box-shadow:0 3px 10px #1737460b}
 .arena-course-filter+h2{margin-top:18px}
-.arena-course-controls{gap:5px}
+.arena-course-controls{gap:5px}.arena-course-controls label{width:100%;min-width:0;padding-inline:5px}
 .char>span{flex:0 1 auto;min-width:3em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.char small{flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.char .rank-badge{flex:0 0 auto;height:17px;min-width:18px;padding:0 2px;font-size:9px}
 #configView>.config-top{margin-bottom:10px}
 .config-character-picker{margin-top:0;border-radius:10px;background:var(--card);box-shadow:var(--shadow)}
@@ -181,12 +181,12 @@
 .config-summary-character{flex:1 1 auto}
 .config-summary-rank{display:flex;align-items:center;gap:5px;flex:0 0 auto;color:var(--muted);font-size:10px;font-weight:700;white-space:nowrap}
 .config-summary-rank select{width:66px;height:31px;padding:3px 5px}
-.config-summary-action{margin-left:0}
+.config-summary-action{margin-left:0;color:var(--navy);font-size:12px}
 .config-editor{margin-top:12px;padding:12px;border:1px solid var(--line);border-radius:12px;background:var(--card);box-shadow:var(--shadow)}
 .config-route-tools{display:flex;align-items:center;gap:5px;flex-wrap:nowrap;overflow-x:auto;padding-bottom:2px;scrollbar-width:thin}
-.config-route-tools .config-route-select{display:flex;align-items:center;gap:6px;flex:1 1 230px;min-width:170px;color:var(--muted);font-size:11px;font-weight:700;white-space:nowrap}
-.config-route-tools .config-route-select select{flex:1 1 auto;min-width:90px;height:34px;padding:4px 7px}
-.config-route-tools>button{flex:0 0 auto;min-height:34px;padding:5px 9px;white-space:nowrap}
+.config-route-tools>label.config-route-select{display:flex;align-items:center;gap:6px;flex:0 0 220px;min-width:220px;color:var(--muted);font-size:11px;font-weight:700;white-space:nowrap}
+.config-route-tools .config-route-select select{flex:1 1 0;width:0;min-width:0;height:34px;padding:4px 7px}
+.config-route-tools>button{flex:0 0 auto;min-height:36px;padding:6px 11px;font-size:12px;font-weight:700;white-space:nowrap}
 .class-chart{margin-top:10px}
 @media(max-width:720px){
  #arenaCourseHeading{margin-top:18px;margin-bottom:6px}
@@ -196,14 +196,14 @@
  .config-character-picker summary{gap:5px;min-height:45px;padding:6px 8px}
  .config-summary-character{min-width:0}
  .config-summary-rank{gap:2px}
- .config-summary-rank>span{display:none}
+ .config-summary-rank>span{display:inline}
  .config-summary-rank select{width:52px;height:29px;padding:2px 3px;font-size:10px}
- .config-summary-action{font-size:9px}
+ .config-summary-action{font-size:11px}
  .config-editor{margin-top:8px;padding:7px}
  .config-route-tools{display:flex;align-items:center;gap:3px;flex-wrap:nowrap;overflow-x:auto}
- .config-route-tools .config-route-select{display:flex;flex:1 1 120px;min-width:112px;gap:3px;font-size:9px}
- .config-route-tools .config-route-select select{width:auto;min-width:60px;height:30px;padding:3px 4px;font-size:9px}
- .config-route-tools>button{flex:0 0 auto;min-width:0;min-height:30px!important;padding:4px 6px;font-size:9px}
+ .config-route-tools>label.config-route-select{display:flex;flex:0 0 180px;min-width:180px;gap:3px;font-size:10px}
+ .config-route-tools .config-route-select select{width:0;min-width:0;height:32px;padding:3px 5px;font-size:10px}
+ .config-route-tools>button{flex:0 0 auto;min-width:0;min-height:32px!important;padding:5px 7px;font-size:11px}
  .class-chart{margin-top:7px}
 }</style>
 </head>
