@@ -157,12 +157,12 @@
 .view-global-actions{display:flex;gap:5px;margin-left:auto}.view-global-actions button{padding:6px 9px;background:#fffdf8;color:var(--navy);font-size:11px;white-space:nowrap}.roster summary{display:flex;align-items:center;gap:8px}.roster-count{margin-left:auto;white-space:nowrap}.compact-route{display:flex;align-items:center;gap:4px;min-width:0}.compact-route select{flex:1;min-width:0}.route-edit{flex:0 0 auto;padding:4px 6px;border-color:#8db4a8;background:#e7f1ed;color:#205b4c;font-size:10px;white-space:nowrap}.route-edit:hover{border-color:#4d8e7b;background:#d9ebe4}@media(max-width:720px){.view-tabs{gap:4px;align-items:center}.view-tabs>[data-view]{padding:6px 8px;font-size:11px}.view-global-actions{gap:3px}.view-global-actions button{padding:5px 5px;font-size:9px}.roster summary{padding:8px 10px;font-size:12px}.roster-count{font-size:9px}.route-edit{padding:4px 5px;font-size:9px}}/* Arena course skill-gap filter. */
 .arena-course-filter{display:flex;margin-top:10px;align-items:center;gap:5px;padding:7px 10px;border-top:1px solid var(--line);overflow-x:auto;white-space:nowrap;scrollbar-width:thin}
 .arena-course-filter+h2{margin-top:12px}.arena-course-filter strong{flex:0 0 auto;margin-right:2px;color:var(--navy);font-size:11px}
-.arena-course-filter label{display:inline-flex;align-items:center;gap:3px;flex:0 0 auto;padding:4px 7px;border:1px solid #d0c5b4;border-radius:999px;background:#fffdf8;font-size:10px;font-weight:700;cursor:pointer}
-.arena-course-filter label:has(input:checked){border-color:#173f36;background:#173f36;color:#fff}
-.arena-course-filter input{width:12px;height:12px;margin:0;accent-color:#b98231}
+.arena-course-filter label{display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;padding:6px 10px;border:1px solid #b8c9c8;border-radius:8px;background:#eaf1ef;color:var(--navy);font-size:10px;font-weight:700;cursor:pointer}
+.arena-course-filter label:has(input:checked){border-color:var(--navy);background:var(--navy);color:#fff}
+.arena-course-filter input{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
 .arena-arrow{height:9px;color:#b44c37;font-size:7px;font-weight:900;line-height:9px;letter-spacing:-1px;visibility:hidden}
 .arena-arrow.show{visibility:visible}
-@media(max-width:720px){.arena-course-filter{gap:3px;padding:5px 7px}.arena-course-filter+h2{margin-top:12px}.arena-course-filter strong{font-size:9px}.arena-course-filter label{gap:2px;padding:3px 5px;font-size:8px}.arena-course-filter input{width:10px;height:10px}.arena-arrow{height:8px;font-size:6.5px;line-height:8px;letter-spacing:-1.4px}}</style>
+@media(max-width:720px){.arena-course-filter{gap:3px;padding:5px 7px}.arena-course-filter+h2{margin-top:12px}.arena-course-filter strong{font-size:9px}.arena-course-filter label{padding:5px 7px;font-size:9px}.arena-course-filter input{width:1px;height:1px}.arena-arrow{height:8px;font-size:6.5px;line-height:8px;letter-spacing:-1.4px}}</style>
 </head>
 <body>
 <header><h1 id="appTitle">万缕千丝 · 职业路线升级助手</h1><p id="subtitle">培养路线与转职技能需求对照</p><label class="language-picker"><span id="languageCaption">语言</span><select id="language" aria-label="语言"><option value="zh">简体中文</option><option value="ja">日本語</option></select></label></header>
@@ -325,7 +325,13 @@ function skillFocus(path, skills) {
  }
  return focus;
 }
-function memberCard(m){
+function memberMatchesArenaCourse(m){
+ if(!state.arenaCourse)return true;
+ const courseSkills=ARENA_COURSES[state.arenaCourse]||[];
+ if(!courseSkills.length)return false;
+ const c=characterById[m.id],paths=c?pathOptions(c):[],p=paths[m.path]||paths[0],skills=m.skills||blankSkills(),focus=skillFocus(p,skills);
+ return courseSkills.some(s=>focus[s]&&gradeValue(skills[s])<gradeValue(focus[s]));
+}function memberCard(m){
  const c=characterById[m.id];if(!c)return "";m.skills||=blankSkills();const paths=pathOptions(c),p=paths[m.path]||paths[0],selected=Math.max(0,paths.indexOf(p));m.path=selected;
  const shown=p?.steps?.length?stepName(p.steps.at(-1)):(isJa()?"ルート未設定":"未设置路线");
  const pathSelect=`<select data-action="path" data-id="${c.id}">${paths.map((x,i)=>`<option value="${i}" ${i===selected?"selected":""}>${esc(x.steps?.length?stepName(x.steps.at(-1)):(isJa()?"ルート":"路线 ")+(i+1))}</option>`).join("")}<option value="custom">${isJa()?"＋ 自作ルート…":"＋ 自定义路线…"}</option></select>`;
@@ -381,7 +387,7 @@ function renderRosterList(list) {
  const available=CHARACTERS.filter(c=>isRouteAvailable(c,active)).map(c=>({c,info:recruitInfo(c,active)})).sort((a,b)=>a.info.order-b.info.order||charName(a.c).localeCompare(charName(b.c),isJa()?"ja":"zh-CN")),list=available;
  document.getElementById("charList").innerHTML=renderRosterList(list); document.getElementById("count").innerHTML=`${list.length}/${available.length}<span class="count-label">${isJa()?" 人":" 名可用角色"}</span>`;
  const nodeHead=isJa()?`<div class="node-head"><b>兵種・必要技能</b><span>初 Lv5</span><span>中 Lv20</span><span>上 Lv35</span><span>最 Lv45</span><span>神 特殊</span></div>`:`<div class="node-head"><b>职业节点 · 技能门槛</b><span>初 Lv5</span><span>中 Lv20</span><span>上 Lv35</span><span>最 Lv45</span><span>神 特殊</span></div>`;
- const rankValue={SS:6,S:5,A:4,B:3,C:2,D:1},routeHero={"凯伊篇":"chr-4","迪托利希篇":"chr-5","赛奥朵拉篇":"chr-6","蕾达篇":"chr-7"}[active];const team=[...state.teams[active]].sort((a,b)=>{const ra=rankValue[state.characterRanks?.[a.id]]||0,rb=rankValue[state.characterRanks?.[b.id]]||0;if(rb-ra)return rb-ra;if(a.id===routeHero)return -1;if(b.id===routeHero)return 1;return charName(characterById[a.id]).localeCompare(charName(characterById[b.id]),isJa()?"ja":"zh-CN");});document.getElementById("members").innerHTML=team.length?`<div class="member-scroll"><div class="compact-members"><div class="compact-head"><span>${isJa()?"キャラ":"角色"}</span><span>${isJa()?"ルート":"路线"}</span><span>${isJa()?"技能Lv":"技能等级"}</span>${nodeHead}<span></span></div>${team.map(memberCard).join("")}</div></div>`:`<div class="panel empty">${isJa()?`まだキャラがいません。上のリストから「${routeName(active)}」に追加してください。`:`还没有登记角色。展开上方名单，将角色加入“${active}”。`}</div>`;
+ const rankValue={SS:6,S:5,A:4,B:3,C:2,D:1},routeHero={"凯伊篇":"chr-4","迪托利希篇":"chr-5","赛奥朵拉篇":"chr-6","蕾达篇":"chr-7"}[active];const allTeam=[...state.teams[active]],team=allTeam.filter(memberMatchesArenaCourse).sort((a,b)=>{const ra=rankValue[state.characterRanks?.[a.id]]||0,rb=rankValue[state.characterRanks?.[b.id]]||0;if(rb-ra)return rb-ra;if(a.id===routeHero)return -1;if(b.id===routeHero)return 1;return charName(characterById[a.id]).localeCompare(charName(characterById[b.id]),isJa()?"ja":"zh-CN");});document.getElementById("membersHeading").textContent=state.arenaCourse?(isJa()?`所持キャラ（${team.length}/${allTeam.length}人）`:`已拥有角色（${team.length}/${allTeam.length}）`):(isJa()?`所持キャラ（${allTeam.length}人）`:`已拥有角色（${allTeam.length}）`);document.getElementById("members").innerHTML=team.length?`<div class="member-scroll"><div class="compact-members"><div class="compact-head"><span>${isJa()?"キャラ":"角色"}</span><span>${isJa()?"ルート":"路线"}</span><span>${isJa()?"技能Lv":"技能等级"}</span>${nodeHead}<span></span></div>${team.map(memberCard).join("")}</div></div>`:`<div class="panel empty">${state.arenaCourse?(isJa()?"このコースで加練が必要なキャラはいません。":"当前课程没有需要加练的角色。"):isJa()?`まだキャラがいません。上のリストから「${routeName(active)}」に追加してください。`:`还没有登记角色。展开上方名单，将角色加入“${active}”。`}</div>`;
 }
 function renderChrome(){
  const ja=isJa(),set=(id,value)=>{const el=document.getElementById(id);if(el)el.textContent=value},owned=(state.teams[active]||[]).length;
