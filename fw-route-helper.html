@@ -160,9 +160,15 @@
 .arena-course-filter label{display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;padding:6px 10px;border:1px solid #b8c9c8;border-radius:8px;background:#eaf1ef;color:var(--navy);font-size:10px;font-weight:700;cursor:pointer}
 .arena-course-filter label:has(input:checked){border-color:var(--navy);background:var(--navy);color:#fff}
 .arena-course-filter input{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
-.arena-arrow{height:9px;color:#b44c37;font-size:7px;font-weight:900;line-height:9px;letter-spacing:-1px;visibility:hidden}
-.arena-arrow.show{visibility:visible}
-@media(max-width:720px){.arena-course-filter{gap:3px;padding:5px 7px}.arena-course-filter+h2{margin-top:12px}.arena-course-filter strong{font-size:9px}.arena-course-filter label{padding:5px 7px;font-size:9px}.arena-course-filter input{width:1px;height:1px}.arena-arrow{height:8px;font-size:6.5px;line-height:8px;letter-spacing:-1.4px}}</style>
+.arena-guide-row{display:grid;grid-template-columns:100px 85px 450px minmax(370px,1fr) 54px;column-gap:14px;align-items:center;padding:5px 10px 7px;margin-bottom:5px;border-bottom:1px dashed var(--line)}
+.arena-guide-label{grid-column:1/3;color:var(--navy);font-size:11px}
+.arena-guide-skills{grid-column:3;display:grid;grid-template-columns:repeat(12,1fr);gap:3px;padding-right:7px;border-right:1px solid transparent}
+.arena-guide-skills span{display:grid;grid-template-rows:auto 14px;place-items:center;min-width:0;padding:1px;border-radius:4px;background:#f3efe7;color:#7b8588;font-size:9px;font-weight:700}
+.arena-guide-skills span.active{background:#fff1cd;color:#7a5414;box-shadow:inset 0 0 0 1px #d3a44c}
+.arena-guide-skills i{font-style:normal}.arena-guide-skills b{color:transparent;font-size:16px;line-height:14px}
+.arena-guide-skills span.active b{color:#b56a14}
+.quick-skills label.arena-trained{position:relative;z-index:0;outline:2px solid #d4a13c;outline-offset:1px;box-shadow:0 0 0 3px #f4d98a55,0 2px 8px #b9823155;font-weight:900}
+@media(max-width:720px){.arena-course-filter{gap:3px;padding:5px 7px}.arena-course-filter+h2{margin-top:12px}.arena-course-filter strong{font-size:9px}.arena-course-filter label{padding:5px 7px;font-size:9px}.arena-course-filter input{width:1px;height:1px}.arena-guide-row{grid-template-columns:minmax(0,1fr) 42px minmax(72px,96px) auto;column-gap:4px;padding:5px 10px}.arena-guide-label{display:none}.arena-guide-skills{grid-column:1/5;gap:2px;padding-right:0;border-right:0}.arena-guide-skills span{grid-template-rows:auto 12px;font-size:8px}.arena-guide-skills i{font-style:normal}.arena-guide-skills b{font-size:14px;line-height:12px}.quick-skills label.arena-trained{outline-width:1px;outline-offset:0;box-shadow:0 0 0 2px #f4d98a66,0 1px 5px #b9823144}}</style>
 </head>
 <body>
 <header><h1 id="appTitle">万缕千丝 · 职业路线升级助手</h1><p id="subtitle">培养路线与转职技能需求对照</p><label class="language-picker"><span id="languageCaption">语言</span><select id="language" aria-label="语言"><option value="zh">简体中文</option><option value="ja">日本語</option></select></label></header>
@@ -331,13 +337,18 @@ function memberMatchesArenaCourse(m){
  if(!courseSkills.length)return false;
  const c=characterById[m.id],paths=c?pathOptions(c):[],p=paths[m.path]||paths[0],skills=m.skills||blankSkills(),focus=skillFocus(p,skills);
  return courseSkills.some(s=>focus[s]&&gradeValue(skills[s])<gradeValue(focus[s]));
+}function arenaSkillGuide(){
+ if(!state.arenaCourse)return "";
+ const courseSkills=ARENA_COURSES[state.arenaCourse]||[];
+ const cells=SKILLS.map(s=>{const active=courseSkills.includes(s);return `<span class="${active?"active":""}" title="${skillName(s)}"><i>${skillShort(s)}</i><b>${active?"↑":""}</b></span>`;}).join("");
+ return `<div class="arena-guide-row"><strong class="arena-guide-label">${isJa()?"コース技能":"课程技能"}</strong><div class="arena-guide-skills">${cells}</div></div>`;
 }function memberCard(m){
  const c=characterById[m.id];if(!c)return "";m.skills||=blankSkills();const paths=pathOptions(c),p=paths[m.path]||paths[0],selected=Math.max(0,paths.indexOf(p));m.path=selected;
  const shown=p?.steps?.length?stepName(p.steps.at(-1)):(isJa()?"ルート未設定":"未设置路线");
  const pathSelect=`<select data-action="path" data-id="${c.id}">${paths.map((x,i)=>`<option value="${i}" ${i===selected?"selected":""}>${esc(x.steps?.length?stepName(x.steps.at(-1)):(isJa()?"ルート":"路线 ")+(i+1))}</option>`).join("")}<option value="custom">${isJa()?"＋ 自作ルート…":"＋ 自定义路线…"}</option></select>`;
  const mobileChoice=`<button class="mobile-route-choice" data-action="route-menu" data-id="${c.id}" title="${esc(shown)}">${esc(shown)}</button>`;
  const focus=skillFocus(p,m.skills),courseSkills=ARENA_COURSES[state.arenaCourse]||[];
- const skillInputs=SKILLS.map(s=>{const target=focus[s],status=target?(gradeValue(m.skills[s])<gradeValue(target)?"need":"met"):"",arrow=state.arenaCourse?`<span class="arena-arrow ${status==="need"&&courseSkills.includes(s)?"show":""}">↑↑↑</span>`:"",tip=target?`${skillName(s)}：${isJa()?"現在":"当前"} ${m.skills[s]} → ${isJa()?"目標":"目标"} ${target}`:skillName(s);return `<label class="${status}" title="${tip}">${arrow}${skillShort(s)}<select data-action="skill" data-id="${c.id}" data-skill="${s}">${GRADES.map(g=>`<option ${m.skills[s]===g?"selected":""}>${g}</option>`).join("")}</select></label>`;}).join("");
+ const skillInputs=SKILLS.map(s=>{const target=focus[s],status=target?(gradeValue(m.skills[s])<gradeValue(target)?"need":"met"):"",courseClass=state.arenaCourse&&courseSkills.includes(s)?" arena-trained":"",tip=target?`${skillName(s)}：${isJa()?"現在":"当前"} ${m.skills[s]} → ${isJa()?"目標":"目标"} ${target}`:skillName(s);return `<label class="${status}${courseClass}" title="${tip}">${skillShort(s)}<select data-action="skill" data-id="${c.id}" data-skill="${s}">${GRADES.map(g=>`<option ${m.skills[s]===g?"selected":""}>${g}</option>`).join("")}</select></label>`;}).join("");
  return `<article class="compact-member"><div class="compact-who"><img class="avatar" src="${portrait(c)}" alt="" loading="lazy"><b title="${esc(charName(c))}">${esc(charName(c))}</b>${state.characterRanks?.[c.id]?`<i class="rank-badge rank-${state.characterRanks[c.id]}">${state.characterRanks[c.id]}</i>`:""}</div><div class="compact-route"><button class="route-edit" data-action="edit-route" data-id="${c.id}">${isJa()?"編集":"编辑"}</button>${pathSelect}${mobileChoice}</div><div class="quick-skills">${skillInputs}</div><div class="node-line">${compactNodes(p,m.skills)}</div><button class="danger" data-action="remove" data-id="${c.id}">${isJa()?"外す":"移出"}</button></article>`;
 }
 const SAVIOR_ROSTER_GROUPS = [
@@ -387,7 +398,11 @@ function renderRosterList(list) {
  const available=CHARACTERS.filter(c=>isRouteAvailable(c,active)).map(c=>({c,info:recruitInfo(c,active)})).sort((a,b)=>a.info.order-b.info.order||charName(a.c).localeCompare(charName(b.c),isJa()?"ja":"zh-CN")),list=available;
  document.getElementById("charList").innerHTML=renderRosterList(list); document.getElementById("count").innerHTML=`${list.length}/${available.length}<span class="count-label">${isJa()?" 人":" 名可用角色"}</span>`;
  const nodeHead=isJa()?`<div class="node-head"><b>兵種・必要技能</b><span>初 Lv5</span><span>中 Lv20</span><span>上 Lv35</span><span>最 Lv45</span><span>神 特殊</span></div>`:`<div class="node-head"><b>职业节点 · 技能门槛</b><span>初 Lv5</span><span>中 Lv20</span><span>上 Lv35</span><span>最 Lv45</span><span>神 特殊</span></div>`;
- const rankValue={SS:6,S:5,A:4,B:3,C:2,D:1},routeHero={"凯伊篇":"chr-4","迪托利希篇":"chr-5","赛奥朵拉篇":"chr-6","蕾达篇":"chr-7"}[active];const allTeam=[...state.teams[active]],team=allTeam.filter(memberMatchesArenaCourse).sort((a,b)=>{const ra=rankValue[state.characterRanks?.[a.id]]||0,rb=rankValue[state.characterRanks?.[b.id]]||0;if(rb-ra)return rb-ra;if(a.id===routeHero)return -1;if(b.id===routeHero)return 1;return charName(characterById[a.id]).localeCompare(charName(characterById[b.id]),isJa()?"ja":"zh-CN");});document.getElementById("membersHeading").textContent=state.arenaCourse?(isJa()?`所持キャラ（${team.length}/${allTeam.length}人）`:`已拥有角色（${team.length}/${allTeam.length}）`):(isJa()?`所持キャラ（${allTeam.length}人）`:`已拥有角色（${allTeam.length}）`);document.getElementById("members").innerHTML=team.length?`<div class="member-scroll"><div class="compact-members"><div class="compact-head"><span>${isJa()?"キャラ":"角色"}</span><span>${isJa()?"ルート":"路线"}</span><span>${isJa()?"技能Lv":"技能等级"}</span>${nodeHead}<span></span></div>${team.map(memberCard).join("")}</div></div>`:`<div class="panel empty">${state.arenaCourse?(isJa()?"このコースで加練が必要なキャラはいません。":"当前课程没有需要加练的角色。"):isJa()?`まだキャラがいません。上のリストから「${routeName(active)}」に追加してください。`:`还没有登记角色。展开上方名单，将角色加入“${active}”。`}</div>`;
+ const rankValue={SS:6,S:5,A:4,B:3,C:2,D:1},routeHero={"凯伊篇":"chr-4","迪托利希篇":"chr-5","赛奥朵拉篇":"chr-6","蕾达篇":"chr-7"}[active];
+ const allTeam=[...state.teams[active]],team=allTeam.filter(memberMatchesArenaCourse).sort((a,b)=>{const ra=rankValue[state.characterRanks?.[a.id]]||0,rb=rankValue[state.characterRanks?.[b.id]]||0;if(rb-ra)return rb-ra;if(a.id===routeHero)return -1;if(b.id===routeHero)return 1;return charName(characterById[a.id]).localeCompare(charName(characterById[b.id]),isJa()?"ja":"zh-CN");});
+ const guide=arenaSkillGuide(),emptyMessage=state.arenaCourse?(isJa()?"このコースで加練が必要なキャラはいません。":"当前课程没有需要加练的角色。"):(isJa()?`まだキャラがいません。上のリストから「${routeName(active)}」に追加してください。`:`还没有登记角色。展开上方名单，将角色加入“${active}”。`);
+ document.getElementById("membersHeading").textContent=state.arenaCourse?(isJa()?`所持キャラ（${team.length}/${allTeam.length}人）`:`已拥有角色（${team.length}/${allTeam.length}）`):(isJa()?`所持キャラ（${allTeam.length}人）`:`已拥有角色（${allTeam.length}）`);
+ document.getElementById("members").innerHTML=team.length?`<div class="member-scroll"><div class="compact-members">${guide}<div class="compact-head"><span>${isJa()?"キャラ":"角色"}</span><span>${isJa()?"ルート":"路线"}</span><span>${isJa()?"技能Lv":"技能等级"}</span>${nodeHead}<span></span></div>${team.map(memberCard).join("")}</div></div>`:`${guide?`<div class="member-scroll"><div class="compact-members">${guide}</div></div>`:""}<div class="panel empty">${emptyMessage}</div>`;
 }
 function renderChrome(){
  const ja=isJa(),set=(id,value)=>{const el=document.getElementById(id);if(el)el.textContent=value},owned=(state.teams[active]||[]).length;
