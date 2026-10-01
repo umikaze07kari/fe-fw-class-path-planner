@@ -158,7 +158,7 @@
 .arena-course-filter{margin-top:10px}.arena-course-controls{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));align-items:center;gap:4px;width:100%;white-space:nowrap}
 .arena-course-filter+h2{margin-top:14px}.arena-course-filter strong{flex:0 0 auto;padding:0 4px;color:var(--navy);font-size:11px}
 .arena-course-filter label{display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;min-height:29px;padding:4px 9px;border:1px solid #b8c9c8;border-radius:7px;background:#edf3f1;color:var(--navy);font-size:10px;font-weight:700;cursor:pointer;transition:background .15s,border-color .15s,color .15s}
-.arena-course-filter label{--course-color:var(--navy);border-width:2px;border-color:var(--course-color);background:#fffdf8;color:var(--course-color)}.arena-course-filter label.course-a{--course-color:#b94a48}.arena-course-filter label.course-e{--course-color:#b98920}.arena-course-filter label.course-b{--course-color:#4f865a}.arena-course-filter label.course-c{--course-color:#73549b}.arena-course-filter label.course-d{--course-color:#3977a8}.arena-course-filter label:has(input:checked){border-color:var(--course-color);background:var(--course-color);color:#fff;box-shadow:0 2px 6px color-mix(in srgb,var(--course-color) 28%,transparent)}
+.arena-course-filter label{--course-color:var(--navy);border-width:2px;border-color:var(--course-color);background:#fffdf8;color:var(--course-color)}.arena-course-filter label.course-a{--course-color:#b94a48}.arena-course-filter label.course-e{--course-color:#b98920}.arena-course-filter label.course-b{--course-color:#4f865a}.arena-course-filter label.course-c{--course-color:#73549b}.arena-course-filter label.course-d{--course-color:#3977a8}.arena-course-filter label.selected{border-color:var(--course-color);background:var(--course-color);color:#fff;box-shadow:0 2px 6px color-mix(in srgb,var(--course-color) 28%,transparent)}
 .arena-course-filter input{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
 .arena-guide-row{display:grid;grid-template-columns:100px 85px 450px minmax(370px,1fr) 54px;column-gap:14px;align-items:center;margin-top:5px;padding:6px 10px 0;border-top:1px dashed #ddd2c1}
 .arena-guide-label{grid-column:1/3;justify-self:start;padding:3px 7px;border-radius:5px;background:#eee8dc;color:#6e6048;font-size:10px}
@@ -428,7 +428,7 @@ function renderRosterList(list) {
  }).join("");
 }function render(){
  renderChrome();
- document.querySelectorAll('input[name="arena-course"]').forEach(input=>input.checked=input.value===state.arenaCourse);
+ document.querySelectorAll('input[name="arena-course"]').forEach(input=>{const selected=input.value===state.arenaCourse;input.checked=selected;input.closest("label")?.classList.toggle("selected",selected);});
  document.getElementById("routes").innerHTML=ROUTES.map((r,i)=>`<button class="route route-${i} ${r===active?"active":""}" data-route="${r}"><span class="route-full">${routeName(r)}</span><span class="route-short">${mobileRouteName(r)}</span><small> · ${state.teams[r].length}</small></button>`).join("");
  const available=CHARACTERS.filter(c=>isRouteAvailable(c,active)).map(c=>({c,info:recruitInfo(c,active)})).sort((a,b)=>a.info.order-b.info.order||charName(a.c).localeCompare(charName(b.c),isJa()?"ja":"zh-CN")),list=available;
  document.getElementById("charList").innerHTML=renderRosterList(list); document.getElementById("count").innerHTML=`${list.length}/${available.length}<span class="count-label">${isJa()?" 人":" 名可用角色"}</span>`;
