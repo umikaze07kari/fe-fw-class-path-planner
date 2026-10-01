@@ -154,7 +154,15 @@
  .config-route-tools input,.config-route-tools select{height:34px;min-width:0;width:100%;padding:4px 6px;font-size:11px}
  .config-route-tools>button{flex:1 1 auto;min-width:0;min-height:31px!important;padding:5px 5px;font-size:10px;line-height:1.15}
 }/* Global backup actions and direct route editing. */
-.view-global-actions{display:flex;gap:5px;margin-left:auto}.view-global-actions button{padding:6px 9px;background:#fffdf8;color:var(--navy);font-size:11px;white-space:nowrap}.roster summary{display:flex;align-items:center;gap:8px}.roster-count{margin-left:auto;white-space:nowrap}.compact-route{display:flex;align-items:center;gap:4px;min-width:0}.compact-route select{flex:1;min-width:0}.route-edit{flex:0 0 auto;padding:4px 6px;border-color:#8db4a8;background:#e7f1ed;color:#205b4c;font-size:10px;white-space:nowrap}.route-edit:hover{border-color:#4d8e7b;background:#d9ebe4}@media(max-width:720px){.view-tabs{gap:4px;align-items:center}.view-tabs>[data-view]{padding:6px 8px;font-size:11px}.view-global-actions{gap:3px}.view-global-actions button{padding:5px 5px;font-size:9px}.roster summary{padding:8px 10px;font-size:12px}.roster-count{font-size:9px}.route-edit{padding:4px 5px;font-size:9px}}</style>
+.view-global-actions{display:flex;gap:5px;margin-left:auto}.view-global-actions button{padding:6px 9px;background:#fffdf8;color:var(--navy);font-size:11px;white-space:nowrap}.roster summary{display:flex;align-items:center;gap:8px}.roster-count{margin-left:auto;white-space:nowrap}.compact-route{display:flex;align-items:center;gap:4px;min-width:0}.compact-route select{flex:1;min-width:0}.route-edit{flex:0 0 auto;padding:4px 6px;border-color:#8db4a8;background:#e7f1ed;color:#205b4c;font-size:10px;white-space:nowrap}.route-edit:hover{border-color:#4d8e7b;background:#d9ebe4}@media(max-width:720px){.view-tabs{gap:4px;align-items:center}.view-tabs>[data-view]{padding:6px 8px;font-size:11px}.view-global-actions{gap:3px}.view-global-actions button{padding:5px 5px;font-size:9px}.roster summary{padding:8px 10px;font-size:12px}.roster-count{font-size:9px}.route-edit{padding:4px 5px;font-size:9px}}/* Arena course skill-gap filter. */
+.arena-course-filter{display:flex;align-items:center;gap:5px;padding:7px 10px;border-top:1px solid var(--line);overflow-x:auto;white-space:nowrap;scrollbar-width:thin}
+.arena-course-filter strong{flex:0 0 auto;margin-right:2px;color:var(--navy);font-size:11px}
+.arena-course-filter label{display:inline-flex;align-items:center;gap:3px;flex:0 0 auto;padding:4px 7px;border:1px solid #d0c5b4;border-radius:999px;background:#fffdf8;font-size:10px;font-weight:700;cursor:pointer}
+.arena-course-filter label:has(input:checked){border-color:#173f36;background:#173f36;color:#fff}
+.arena-course-filter input{width:12px;height:12px;margin:0;accent-color:#b98231}
+.arena-arrow{height:9px;color:#b44c37;font-size:7px;font-weight:900;line-height:9px;letter-spacing:-1px;visibility:hidden}
+.arena-arrow.show{visibility:visible}
+@media(max-width:720px){.arena-course-filter{gap:3px;padding:5px 7px}.arena-course-filter strong{font-size:9px}.arena-course-filter label{gap:2px;padding:3px 5px;font-size:8px}.arena-course-filter input{width:10px;height:10px}.arena-arrow{height:8px;font-size:6.5px;line-height:8px;letter-spacing:-1.4px}}</style>
 </head>
 <body>
 <header><h1 id="appTitle">万缕千丝 · 职业路线升级助手</h1><p id="subtitle">培养路线与转职技能需求对照</p><label class="language-picker"><span id="languageCaption">语言</span><select id="language" aria-label="语言"><option value="zh">简体中文</option><option value="ja">日本語</option></select></label></header>
@@ -162,7 +170,7 @@
   <nav class="view-tabs"><button class="active" data-view="team" id="teamTab">队伍总览</button><button data-view="config" id="configTab">路线配置</button><div class="view-global-actions"><button id="export">导出备份</button><button id="import">导入备份</button><input id="importFile" type="file" accept="application/json" hidden></div></nav>
   <section id="teamView">
     <nav class="routes" id="routes"></nav>
-    <details class="panel roster" id="roster"><summary><span id="rosterSummary">＋ 添加角色至当前线路</span><span class="muted roster-count" id="count"></span></summary><div class="char-list" id="charList"></div></details>
+    <details class="panel roster" id="roster"><summary><span id="rosterSummary">＋ 添加角色至当前线路</span><span class="muted roster-count" id="count"></span></summary><div class="arena-course-filter" id="arenaCourseFilter" role="radiogroup" aria-label="竞技场课程"><strong id="arenaCourseLabel">竞技场课程</strong><label><input type="radio" name="arena-course" value=""><span id="arenaCourseNone">关闭</span></label><label><input type="radio" name="arena-course" value="a"><span id="arenaCourseA">A 步兵（剑箭步）</span></label><label><input type="radio" name="arena-course" value="b"><span id="arenaCourseB">B 重装兵（枪斧指重）</span></label><label><input type="radio" name="arena-course" value="c"><span id="arenaCourseC">C 魔法兵（黑白指）</span></label><label><input type="radio" name="arena-course" value="d"><span id="arenaCourseD">D 骑兵飞行（枪指马飞）</span></label><label><input type="radio" name="arena-course" value="e"><span id="arenaCourseE">E 待补充</span></label><label><input type="radio" name="arena-course" value="f"><span id="arenaCourseF">F 待补充</span></label></div><div class="char-list" id="charList"></div></details>
     <h2 id="membersHeading">已拥有角色</h2><div class="members" id="members"></div>
   </section>
   <section id="configView" hidden>
@@ -188,6 +196,13 @@ CHARACTERS.forEach((c,i)=>c.jpName=JP_CHARACTER_NAMES[i]||c.name);
 CLASSES.forEach((c,i)=>c.jpName=JP_CLASS_NAMES[i]||c.name);
 const ROUTES = ["凯伊篇","迪托利希篇","赛奥朵拉篇","蕾达篇","救世篇"];
 const SKILLS = ["剑术","枪术","斧术","箭术","格斗术","黑魔术","白魔术","指挥术","步兵术","马术","重装术","飞行术"];
+const ARENA_COURSES = {
+ a:[SKILLS[0],SKILLS[3],SKILLS[8]],
+ b:[SKILLS[1],SKILLS[2],SKILLS[7],SKILLS[10]],
+ c:[SKILLS[5],SKILLS[6],SKILLS[7]],
+ d:[SKILLS[1],SKILLS[7],SKILLS[9],SKILLS[11]],
+ e:[],f:[]
+};
 const GRADES = ["—","E","E+","D","D+","C","C+","B","B+","A","A+","S"];
 const gradeValue = g => Math.max(0, GRADES.indexOf(g || "—"));
 const characterById = Object.fromEntries(CHARACTERS.map(c=>[c.id,c]));
@@ -230,11 +245,11 @@ function recruitInfo(c, route) {
   return {order:rep||99,label:rep ? (isJa()?"名声 Lv":"名声 LV")+rep : (isJa()?"スカウト可":"可挖角")};
 }
 const blankSkills = () => Object.fromEntries(SKILLS.map(s=>[s,"—"]));
-const defaultState = () => ({v:3,lang:"zh",teams:Object.fromEntries(ROUTES.map(r=>[r,[]])),customPaths:{}});
+const defaultState = () => ({v:3,lang:"zh",arenaCourse:"",teams:Object.fromEntries(ROUTES.map(r=>[r,[]])),customPaths:{}});
 let state;
 try { state = JSON.parse(localStorage.getItem("fw-route-helper") || "null") || defaultState(); } catch { state=defaultState(); }
 ROUTES.forEach(r=>state.teams[r] ||= []);
-state.customPaths ||= {};state.pathEdits ||= {};state.characterRanks ||= {};
+state.customPaths ||= {};state.pathEdits ||= {};state.characterRanks ||= {};state.arenaCourse = ["","a","b","c","d","e","f"].includes(state.arenaCourse) ? state.arenaCourse : "";
 state.lang = state.lang === "ja" ? "ja" : "zh";
 ROUTES.forEach(r=>state.teams[r]=state.teams[r].filter(m=>isRouteAvailable(characterById[m.id],r)));
 state.seededRoutes ||= {};
@@ -314,8 +329,8 @@ function memberCard(m){
  const shown=p?.steps?.length?stepName(p.steps.at(-1)):(isJa()?"ルート未設定":"未设置路线");
  const pathSelect=`<select data-action="path" data-id="${c.id}">${paths.map((x,i)=>`<option value="${i}" ${i===selected?"selected":""}>${esc(x.steps?.length?stepName(x.steps.at(-1)):(isJa()?"ルート":"路线 ")+(i+1))}</option>`).join("")}<option value="custom">${isJa()?"＋ 自作ルート…":"＋ 自定义路线…"}</option></select>`;
  const mobileChoice=`<button class="mobile-route-choice" data-action="route-menu" data-id="${c.id}" title="${esc(shown)}">${esc(shown)}</button>`;
- const focus=skillFocus(p,m.skills);
- const skillInputs=SKILLS.map(s=>{const target=focus[s],status=target?(gradeValue(m.skills[s])<gradeValue(target)?"need":"met"):"",tip=target?`${skillName(s)}：${isJa()?"現在":"当前"} ${m.skills[s]} → ${isJa()?"目標":"目标"} ${target}`:skillName(s);return `<label class="${status}" title="${tip}">${skillShort(s)}<select data-action="skill" data-id="${c.id}" data-skill="${s}">${GRADES.map(g=>`<option ${m.skills[s]===g?"selected":""}>${g}</option>`).join("")}</select></label>`;}).join("");
+ const focus=skillFocus(p,m.skills),courseSkills=ARENA_COURSES[state.arenaCourse]||[];
+ const skillInputs=SKILLS.map(s=>{const target=focus[s],status=target?(gradeValue(m.skills[s])<gradeValue(target)?"need":"met"):"",arrow=state.arenaCourse?`<span class="arena-arrow ${status==="need"&&courseSkills.includes(s)?"show":""}">↑↑↑</span>`:"",tip=target?`${skillName(s)}：${isJa()?"現在":"当前"} ${m.skills[s]} → ${isJa()?"目標":"目标"} ${target}`:skillName(s);return `<label class="${status}" title="${tip}">${arrow}${skillShort(s)}<select data-action="skill" data-id="${c.id}" data-skill="${s}">${GRADES.map(g=>`<option ${m.skills[s]===g?"selected":""}>${g}</option>`).join("")}</select></label>`;}).join("");
  return `<article class="compact-member"><div class="compact-who"><img class="avatar" src="${portrait(c)}" alt="" loading="lazy"><b title="${esc(charName(c))}">${esc(charName(c))}</b>${state.characterRanks?.[c.id]?`<i class="rank-badge rank-${state.characterRanks[c.id]}">${state.characterRanks[c.id]}</i>`:""}</div><div class="compact-route"><button class="route-edit" data-action="edit-route" data-id="${c.id}">${isJa()?"編集":"编辑"}</button>${pathSelect}${mobileChoice}</div><div class="quick-skills">${skillInputs}</div><div class="node-line">${compactNodes(p,m.skills)}</div><button class="danger" data-action="remove" data-id="${c.id}">${isJa()?"外す":"移出"}</button></article>`;
 }
 const SAVIOR_ROSTER_GROUPS = [
@@ -360,6 +375,7 @@ function renderRosterList(list) {
  }).join("");
 }function render(){
  renderChrome();
+ document.querySelectorAll('input[name="arena-course"]').forEach(input=>input.checked=input.value===state.arenaCourse);
  document.getElementById("routes").innerHTML=ROUTES.map((r,i)=>`<button class="route route-${i} ${r===active?"active":""}" data-route="${r}"><span class="route-full">${routeName(r)}</span><span class="route-short">${mobileRouteName(r)}</span><small> · ${state.teams[r].length}</small></button>`).join("");
  const available=CHARACTERS.filter(c=>isRouteAvailable(c,active)).map(c=>({c,info:recruitInfo(c,active)})).sort((a,b)=>a.info.order-b.info.order||charName(a.c).localeCompare(charName(b.c),isJa()?"ja":"zh-CN")),list=available;
  document.getElementById("charList").innerHTML=renderRosterList(list); document.getElementById("count").innerHTML=`${list.length}/${available.length}<span class="count-label">${isJa()?" 人":" 名可用角色"}</span>`;
@@ -369,6 +385,7 @@ function renderRosterList(list) {
 function renderChrome(){
  const ja=isJa(),set=(id,value)=>{const el=document.getElementById(id);if(el)el.textContent=value},owned=(state.teams[active]||[]).length;
  document.documentElement.lang=ja?"ja":"zh-CN";document.getElementById("language").value=state.lang;
+ set("arenaCourseLabel",ja?"闘技場コース":"竞技场课程");set("arenaCourseNone",ja?"オフ":"关闭");set("arenaCourseA",ja?"A 歩兵（剣弓歩）":"A 步兵（剑箭步）");set("arenaCourseB",ja?"B 重装兵（槍斧指重）":"B 重装兵（枪斧指重）");set("arenaCourseC",ja?"C 魔法兵（黒白指）":"C 魔法兵（黑白指）");set("arenaCourseD",ja?"D 騎兵飛行（槍指馬飛）":"D 骑兵飞行（枪指马飞）");set("arenaCourseE",ja?"E 未定":"E 待补充");set("arenaCourseF",ja?"F 未定":"F 待补充");document.getElementById("arenaCourseFilter").setAttribute("aria-label",ja?"闘技場コース":"竞技场课程");
  document.title=ja?"万紫千紅・兵種ルート育成アシスタント":"万缕千丝 · 职业路线升级助手";set("appTitle",document.title);set("subtitle",ja?"育成ルートと転職に必要な技能をまとめて確認":"培养路线与转职技能需求对照");set("languageCaption",ja?"表示":"语言");
  set("teamTab",ja?"部隊一覧":"队伍总览");set("configTab",ja?"ルート設定":"路线配置");
  set("export",ja?"バックアップを書き出し":"导出备份");set("import",ja?"バックアップを読み込む":"导入备份");set("rosterSummary",ja?"＋ 現在のルートにキャラ追加":"＋ 添加角色至当前线路");
@@ -376,6 +393,7 @@ function renderChrome(){
  set("backTeam",ja?"一覧へ戻る":"返回总览");set("configCharacterSummary",ja?"キャラ一覧から選択":"从角色名单选择角色");set("routeNameLabel",ja?"ルート名":"路线名称");set("rankLabel",ja?"キャラ評価":"角色评级");set("editPathLabel",ja?"編集中のルート":"正在编辑");set("newCustomPath",ja?"＋ 新しいルート":"＋ 新路线");set("restoreDefaultRoute",ja?"おすすめを復元":"还原推荐路线");set("deleteCustomRoute",ja?"自作ルートを削除":"删除路线");set("saveRoute",ja?"ルートを保存":"保存路线");set("routeDialogTitle",ja?"育成ルートを選択":"选择培养路线");
  document.getElementById("footer").innerHTML=ja?`データ出典：<a href="https://gamewith.jp/fefw" target="_blank" rel="noopener">GameWith｜ファイアーエムブレム 万紫千紅攻略</a>。入力データはこのブラウザのみに保存されます。「いずれか1つ」は1項目を満たせば達成と判定します。<br>ゲーム画像と名称の著作権は © Nintendo / INTELLIGENT SYSTEMS に帰属します。本サイトは紹介・攻略目的のみで利用しています。`:`数据来源：<a href="https://gamewith.jp/fefw" target="_blank" rel="noopener">GameWith｜火焰纹章 万缕千丝攻略</a>。登记数据仅保存在此浏览器；“任选其一”会按任意一项达标判断。<br>游戏图像与名称版权归 © Nintendo / INTELLIGENT SYSTEMS 所有，本站仅作介绍与攻略用途。`;
 }
+document.getElementById("arenaCourseFilter").onchange=e=>{const input=e.target.closest('input[name="arena-course"]');if(!input)return;state.arenaCourse=input.value;save();render();};
 document.getElementById("routes").onclick=e=>{const r=e.target.closest("[data-route]")?.dataset.route;if(r){active=r;render();}};
 document.getElementById("language").onchange=e=>{state.lang=e.target.value==="ja"?"ja":"zh";save();render();if(!document.getElementById("configView").hidden)renderConfig();};
 document.getElementById("charList").onclick=e=>{const id=e.target.dataset.add;if(id)add(id);};
@@ -383,7 +401,7 @@ document.getElementById("members").onchange=e=>{const el=e.target, id=el.dataset
 document.getElementById("members").onclick=e=>{const el=e.target;if(el.dataset.action==="remove")remove(el.dataset.id);};
 document.getElementById("export").onclick=()=>{const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([JSON.stringify(state,null,2)],{type:"application/json"}));a.download="万缕千丝-培养路线登记.json";a.click();URL.revokeObjectURL(a.href);};
 document.getElementById("import").onclick=()=>document.getElementById("importFile").click();
-document.getElementById("importFile").onchange=e=>{const f=e.target.files[0];if(!f)return;const reader=new FileReader();reader.onload=()=>{try{const x=JSON.parse(reader.result);if(!x.teams)throw Error();state=x;ROUTES.forEach(r=>state.teams[r] ||= []);state.customPaths ||= {};state.pathEdits ||= {};state.characterRanks ||= {};state.lang=state.lang==="ja"?"ja":"zh";save();render();renderConfig();}catch{alert(isJa()?"バックアップファイルが無効です。":"备份文件无效，未导入。");}};reader.readAsText(f);e.target.value="";};
+document.getElementById("importFile").onchange=e=>{const f=e.target.files[0];if(!f)return;const reader=new FileReader();reader.onload=()=>{try{const x=JSON.parse(reader.result);if(!x.teams)throw Error();state=x;ROUTES.forEach(r=>state.teams[r] ||= []);state.customPaths ||= {};state.pathEdits ||= {};state.characterRanks ||= {};state.arenaCourse = ["","a","b","c","d","e","f"].includes(state.arenaCourse) ? state.arenaCourse : "";state.lang=state.lang==="ja"?"ja":"zh";save();render();renderConfig();}catch{alert(isJa()?"バックアップファイルが無効です。":"备份文件无效，未导入。");}};reader.readAsText(f);e.target.value="";};
 let configCharacterId=CHARACTERS[0].id,configRef={kind:"base",index:0},configRefByCharacter={},draftSteps=[],draftName="",routePickerMemberId=null,expandedConfigTiers=new Set(),toastTimer=null,overviewReturnY=null;
 const classStep=id=>{const c=classById[id];return c?{tier:c.tier,name:c.name,classId:c.id}:null;};
 function configRefs(c){return editableBuiltInPaths(c).map((p,i)=>({kind:"base",index:i,path:p})).concat((state.customPaths[c.id]||[]).map((p,i)=>({kind:"custom",index:i,path:p})));}
