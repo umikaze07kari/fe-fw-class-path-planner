@@ -263,7 +263,7 @@ const skillShort = skill => isJa() ? ({"剑术":"剣","枪术":"槍","斧术":"�
 const tierName = tier => isJa() ? (JP_TIERS[tier] || tier) : tier;
 const compactTier = tier => {const t=tierName(tier||"");return isJa()?({"基本職":"基","初級職":"初","中級職":"中","上級職":"上","最上級職":"最","神将職":"神"}[t]||t):t.replace("最上级","最").replace("上级","上").replace("中级","中").replace("初级","初").replace("神将","神");};
 const tierSlot = tier => ({"初级":1,"中级":2,"上级":3,"最上级":4,"神将":5}[tier] || 1);
-const portrait = c => c?.portrait ? "https://fire-emblem-fw.site/" + c.portrait.replace(/^\//,"") : "";
+const portrait = c => c?.portrait || "";
 const isLatePart1 = c => !c || c.part1NoScout || Object.keys(c.storyJoin||{}).some(k=>!k.endsWith("篇")) || /^(序幕|第[23]部)/.test((c.joinChapter||[])[0]||"");
 function isRouteAvailable(c, route) {
   if (route==="救世篇") return Boolean(c);
@@ -396,10 +396,16 @@ const SAVIOR_ROSTER_GROUPS = [
   ["dietrich","拉弥努家族","ラミヌ家",["chr-5","chr-11","chr-12","chr-13"]],
   ["theodora","美盖拉的灯火","メガイラの灯火",["chr-6","chr-14","chr-15","chr-16","chr-17"]],
   ["leda","蔷薇风暴","薔薇の嵐",["chr-7","chr-18","chr-19","chr-20","chr-21"]],
+  ["flame-mane","炎之鬃","炎の鬣",["chr-22","chr-56","chr-57","chr-40","chr-36"]],
   ["moon-lies","月之谎言","月の嘘",["chr-23","chr-37","chr-59","chr-41","chr-58"]],
   ["hime-snapdragon","姬金鱼草的朝露","姫金魚草の朝露",["chr-24","chr-38","chr-42","chr-62","chr-63"]],
-  ["white-raven","白鸦新娘团","白鴉の花嫁団",["chr-25","chr-43","chr-39","chr-60","chr-61"]],
-  ["flame-mane","炎之鬃","炎の鬣",["chr-22","chr-56","chr-57","chr-40","chr-36"]]
+  ["white-raven","白鸦新娘团","白鴉の花嫁団",["chr-25","chr-43","chr-39","chr-60","chr-61"]]
+];
+const CHARACTER_GROUP_DISPLAY_ORDER = [
+  ...SAVIOR_ROSTER_GROUPS.filter(group=>group[0]!=="opening"),
+  ["other","其他人物","その他の第1部キャラ",[]],
+  ["hidden","隐藏 · 后期加入","隠し・後期加入",[]],
+  ...SAVIOR_ROSTER_GROUPS.filter(group=>group[0]==="opening")
 ];
 function rosterItem(entry) {
  const c=entry.c,info=entry.info,owned=state.teams[active].some(x=>x.id===c.id),label=active==="救世篇"?saviorRosterDescription(c,info.label):info.label;
@@ -423,11 +429,7 @@ function renderRosterList(list) {
  const grouped=active==="救世篇";
  charList.classList.toggle("savior-list",grouped);
  if (!grouped) return list.map(rosterItem).join("");
- const groups=[
-   ...SAVIOR_ROSTER_GROUPS,
-   ["other","其他人物","その他の第1部キャラ",[]],
-   ["hidden","隐藏 · 后期加入","隠し・後期加入",[]]
- ];
+ const groups=CHARACTER_GROUP_DISPLAY_ORDER;
  return groups.map(group=>{
    const rows=list.filter(entry=>saviorRosterGroup(entry.c)===group[0]).sort((a,b)=>{const ai=group[3].indexOf(a.c.id), bi=group[3].indexOf(b.c.id);return ai<0||bi<0?0:ai-bi;});
    if (!rows.length) return "";
@@ -481,7 +483,7 @@ function openMemberRouteConfig(id){const c=characterById[id],member=state.teams[
 function glyph(c){const n=c.name;return /箭|弓|猎|狙|影/.test(n)?"🏹":/魔|巫|贤|主教|僧/.test(n)?"✦":/骑|马|象|鸵|车/.test(n)?"♞":/飞|龙|翼/.test(n)?"🜁":/装|甲|塞|卫/.test(n)?"⬡":/剑|侍|刀/.test(n)?"⚔":"◆";}
 function renderConfig(){
  renderChrome();const c=characterById[configCharacterId];if(!c)return;normalizeConfig(c);const p=currentConfig(c);
- const groups=[...SAVIOR_ROSTER_GROUPS,["other","其他人物","その他の第1部キャラ"],["hidden","隐藏 · 后期加入","隠し・後期加入"]];
+ const groups=CHARACTER_GROUP_DISPLAY_ORDER;
  document.getElementById("configCharacterList").innerHTML=groups.map(g=>{const chars=CHARACTERS.filter(x=>saviorRosterGroup(x)===g[0]);return chars.length?'<section class="config-character-group"><h3>'+esc(isJa()?g[2]:g[1])+'</h3><div class="config-character-grid">'+chars.map(x=>'<button class="config-character '+(x.id===configCharacterId?"active":"")+'" data-config-character="'+x.id+'"><img class="avatar" src="'+portrait(x)+'" alt=""><b>'+esc(charName(x))+'</b>'+(state.characterRanks?.[x.id]?'<i class="rank-badge rank-'+state.characterRanks[x.id]+'">'+state.characterRanks[x.id]+'</i>':'')+'<small>'+esc(saviorRosterDescription(x,recruitInfo(x,"救世篇").label))+'</small></button>').join("")+'</div></section>':"";}).join("");
  const summaryRank=state.characterRanks?.[c.id]||"",rankOptions=["","SS","S","A","B","C","D"].map(x=>'<option value="'+x+'" '+(x===summaryRank?"selected":"")+'>'+(x||"—")+'</option>').join("");document.getElementById("configCharacterSummary").innerHTML='<span class="config-summary-character"><img class="avatar" src="'+portrait(c)+'" alt=""><b>'+esc(charName(c))+'</b></span><label class="config-summary-rank"><span id="rankLabel">'+(isJa()?"評価":"角色评级")+'</span><select id="characterRank">'+rankOptions+'</select></label><span class="config-summary-action">'+(isJa()?"キャラを変更":"更换角色")+'</span>';
  const routeTagText=r=>{const meta=CLASS_META[r.path.steps?.at(-1)?.classId]||{types:[],skills:[]},short={"剑术":"剑","枪术":"枪","斧术":"斧","箭术":"箭","格斗术":"格","白魔术":"白","黑魔术":"黑","指挥术":"指","步兵术":"步","马术":"马","重装术":"重","飞行术":"飞"};return [...(meta.types||[]),...(meta.skills||[]).slice(0,3).map(x=>short[x]||x[0])].join("/")},refs=configRefs(c),pathSelect=document.getElementById("editPathSelect");pathSelect.innerHTML=refs.length?refs.map(r=>{const short=r.path.src||"路线 "+(r.index+1),detail=short+(routeTagText(r)?" · "+routeTagText(r):"");return '<option value="'+r.kind+':'+r.index+'" data-short="'+esc(short)+'" data-detail="'+esc(detail)+'" '+(r.kind===configRef.kind&&r.index===configRef.index?"selected":"")+'>'+esc(detail)+'</option>'}).join(""):'<option value="">'+(isJa()?"ルートなし":"暂无路线")+'</option>';pathSelect.disabled=!refs.length;document.getElementById("renameRoute").disabled=!refs.length;document.getElementById("deleteCustomRoute").hidden=!(configRef.kind==="custom"&&configRef.index>=0);document.getElementById("restoreDefaultRoute").hidden=configRef.kind!=="base"||!builtInPaths(c).length;
@@ -517,6 +519,138 @@ document.getElementById("charList").onclick=e=>{const id=e.target.dataset.roster
 document.getElementById("members").onchange=e=>{const el=e.target,m=state.teams[active].find(x=>x.id===el.dataset.id);if(!m)return;if(el.dataset.action==="path"){if(el.value==="custom")return openCustomConfig(m.id);m.path=+el.value;m.target=(pathOptions(characterById[m.id])[m.path]?.steps.length||1)-1;}if(el.dataset.action==="skill")m.skills[el.dataset.skill]=el.value;save();render();};
 document.getElementById("members").onclick=e=>{const el=e.target;if(el.dataset.action==="remove")remove(el.dataset.id);if(el.dataset.action==="route-menu")openRouteMenu(el.dataset.id);if(el.dataset.action==="edit-route")openMemberRouteConfig(el.dataset.id);};
 render();
+</script>
+<script>
+(()=>{
+  const TEAM_GROUP_ICONS={
+    kai:'img/team-icon/clan_1_pc_利贝拉之风.avif',
+    dietrich:'img/team-icon/clan_2_pc_拉弥努家族.avif',
+    theodora:'img/team-icon/clan_3_pc_美盖拉的灯火.avif',
+    leda:'img/team-icon/clan_4_pc_蔷薇风暴.avif',
+    'flame-mane':'img/team-icon/clan_5_pc_炎之鬃.avif',
+    'moon-lies':'img/team-icon/clan_6_pc_月之谎言.avif',
+    'hime-snapdragon':'img/team-icon/clan_7_pc_姬金鱼草的朝露.avif',
+    'white-raven':'img/team-icon/clan_8_pc_白鸦新娘团.avif'
+  };
+  const ALL_CHARACTER_GROUPS=CHARACTER_GROUP_DISPLAY_ORDER;
+  const groupForHeading=heading=>ALL_CHARACTER_GROUPS.find(group=>(isJa()?group[2]:group[1])===heading);
+  const groupPreviewMembers=group=>{
+    const ids=group[3]?.length?group[3]:CHARACTERS.filter(character=>saviorRosterGroup(character)===group[0]).map(character=>character.id);
+    return ids.slice(0,5).map(id=>characterById[id]).filter(Boolean);
+  };
+
+  document.head.insertAdjacentHTML('beforeend',`<style>
+    #charList.savior-list,.config-character-list{display:block;padding:7px}
+    .team-group-card-grid{display:grid;gap:7px}
+    .team-group-card-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+    #fCharacterPicker.sim-character-picker{margin-top:13px!important}
+    .team-group-accordion{margin:0!important;padding:0!important;border:1px solid var(--line)!important;border-radius:8px!important;background:#fffdf8!important;overflow:hidden}
+    .team-group-heading{margin:0!important;padding:0!important;border:0!important}
+    .team-group-toggle{display:flex;width:100%;min-height:54px;align-items:center;gap:7px;padding:4px 7px;border:0;border-radius:0;background:#f7f4ed;color:var(--navy);text-align:left}
+    .team-group-toggle:hover,.team-group-accordion.is-open .team-group-toggle{background:#e6f0ec}
+    .team-group-label{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px}
+    .team-group-members{display:flex;align-items:center;margin-left:auto;padding-left:2px}.team-group-members .avatar{width:20px;height:20px;margin-left:-5px;border:2px solid #f7f4ed;background:#dbe4df}.team-group-toggle:hover .team-group-members .avatar,.team-group-accordion.is-open .team-group-members .avatar{border-color:#e6f0ec}
+    .team-group-logo{display:block;flex:0 0 58px;width:58px;height:46px;overflow:hidden;border-radius:5px;background:#e6ebe8}
+    .team-group-logo-spacer{display:block;flex:0 0 58px;width:58px}
+    .team-group-logo img{display:block;width:100%;height:auto;min-height:100%;object-fit:cover;object-position:center top}
+    .team-group-logo[data-team-group-logo="flame-mane"] img,.team-group-logo[data-team-group-logo="moon-lies"] img{transform:scale(1.16);transform-origin:top center}
+    .team-group-logo[data-team-group-logo="hime-snapdragon"] img,.team-group-logo[data-team-group-logo="white-raven"] img{transform:scale(1.34);transform-origin:top center}
+    .team-group-accordion>.savior-group-characters,.team-group-accordion>.config-character-grid{padding:7px;border-top:1px dashed var(--line)}
+    .team-group-accordion>.savior-group-characters[hidden],.team-group-accordion>.config-character-grid[hidden]{display:none!important}
+    .team-group-detail{padding:7px;border:1px solid var(--line);border-radius:10px;background:#fffdf8}.team-group-detail[hidden]{display:none!important}
+    .team-group-accordion>.config-character-grid{grid-template-columns:repeat(auto-fill,minmax(142px,1fr))}
+    @media(max-width:720px){
+      #charList.savior-list,.config-character-list{padding:5px}.team-group-card-grid{gap:5px}.team-group-card-row{grid-template-columns:repeat(2,minmax(0,1fr));gap:5px}
+      .team-group-toggle{min-height:46px;gap:5px;padding:3px 5px}.team-group-label{font-size:11px}
+      .team-group-members .avatar{width:16px;height:16px;margin-left:-4px;border-width:1px}
+      .team-group-logo{flex-basis:48px;width:48px;height:39px}
+      .team-group-logo-spacer{flex-basis:48px;width:48px}
+      .team-group-accordion>.savior-group-characters,.team-group-accordion>.config-character-grid,.team-group-detail{padding:5px}
+    }
+  </style>`);
+
+  function enhanceCharacterGroupSelector(host){
+    if(!host)return;
+    let cardGrid=host.querySelector(':scope > .team-group-card-grid');
+    if(!cardGrid){
+      const directSections=[...host.querySelectorAll(':scope > section.savior-group,:scope > section.config-character-group')];
+      if(!directSections.length)return;
+      cardGrid=document.createElement('div');
+      cardGrid.className='team-group-card-grid';
+      const fragment=document.createDocumentFragment();
+      directSections.forEach(section=>fragment.append(section));
+      cardGrid.append(fragment);
+      host.prepend(cardGrid);
+    }
+    const sections=[...cardGrid.querySelectorAll(':scope > section.savior-group,:scope > section.config-character-group,:scope > .team-group-card-row > section.savior-group,:scope > .team-group-card-row > section.config-character-group')];
+    const sectionForGroup=group=>sections.find(section=>section.querySelector(':scope > h3')?.textContent.trim()===(isJa()?group[2]:group[1]));
+    const orderedSections=[...ALL_CHARACTER_GROUPS.map(sectionForGroup).filter(Boolean),...sections.filter(section=>!ALL_CHARACTER_GROUPS.some(group=>sectionForGroup(group)===section))];
+    const rows=[...cardGrid.querySelectorAll(':scope > .team-group-card-row')];
+    if(!rows.length||orderedSections.some((section,index)=>sections[index]!==section)){
+      const fragment=document.createDocumentFragment();
+      const perRow=window.matchMedia('(max-width:720px)').matches?2:3;
+      for(let index=0;index<orderedSections.length;index+=perRow){
+        const row=document.createElement('div');
+        row.className='team-group-card-row';
+        orderedSections.slice(index,index+perRow).forEach(section=>row.append(section));
+        fragment.append(row);
+      }
+      cardGrid.replaceChildren(fragment);
+    }
+    sections.forEach(section=>{
+      const heading=section.querySelector(':scope > h3');
+      const content=section.querySelector(':scope > .savior-group-characters,:scope > .config-character-grid');
+      const group=groupForHeading(heading?.textContent.trim());
+      if(!heading||!content||!group)return;
+      section.classList.add('team-group-accordion');
+      heading.className='team-group-heading';
+      if(!heading.querySelector('[data-team-group-toggle]')){
+        const icon=TEAM_GROUP_ICONS[group[0]];
+        const previews=groupPreviewMembers(group).map(character=>`<img class="avatar" src="${portrait(character)}" alt="" title="${esc(charName(character))}" loading="lazy">`).join('');
+        heading.innerHTML=`<button type="button" class="team-group-toggle" data-team-group-toggle="${group[0]}" aria-expanded="false">${icon?`<span class="team-group-logo" data-team-group-logo="${group[0]}"><img src="${icon}" alt="" loading="lazy"></span>`:'<span class="team-group-logo-spacer" aria-hidden="true"></span>'}<span class="team-group-label">${esc(heading.textContent.trim())}</span>${previews?`<span class="team-group-members">${previews}</span>`:''}</button>`;
+      }
+      content.dataset.teamGroupContent=group[0];
+      if(!section.classList.contains('is-open'))content.hidden=true;
+    });
+  }
+
+  function enhanceAllCharacterGroupSelectors(){
+    enhanceCharacterGroupSelector(document.getElementById('charList'));
+    enhanceCharacterGroupSelector(document.getElementById('configCharacterList'));
+    enhanceCharacterGroupSelector(document.getElementById('gCharacterList'));
+    enhanceCharacterGroupSelector(document.getElementById('fCharacterList'));
+  }
+
+  document.addEventListener('click',event=>{
+    const toggle=event.target.closest('[data-team-group-toggle]');
+    if(!toggle)return;
+    const section=toggle.closest('.team-group-accordion'),cardRow=section?.closest('.team-group-card-row'),cardGrid=cardRow?.parentElement;
+    if(!section||!cardRow||!cardGrid)return;
+    const content=cardGrid.querySelector(`[data-team-group-content="${toggle.dataset.teamGroupToggle}"]`);
+    const open=content?.hidden;
+    cardGrid.querySelectorAll('.team-group-accordion').forEach(group=>{
+      const groupToggle=group.querySelector('[data-team-group-toggle]');
+      const groupContent=cardGrid.querySelector(`[data-team-group-content="${groupToggle?.dataset.teamGroupToggle}"]`);
+      const isOpen=group===section&&open;
+      group.classList.toggle('is-open',isOpen);
+      if(groupContent){
+        groupContent.hidden=!isOpen;
+        groupContent.classList.toggle('team-group-detail',isOpen);
+        if(isOpen)cardRow.after(groupContent);else group.append(groupContent);
+      }
+      group.querySelector('[data-team-group-toggle]')?.setAttribute('aria-expanded',String(group===section&&open));
+    });
+  });
+
+  ['charList','configCharacterList','gCharacterList','fCharacterList'].forEach(id=>{
+    const host=document.getElementById(id);
+    if(host)new MutationObserver(()=>queueMicrotask(enhanceAllCharacterGroupSelectors)).observe(host,{childList:true});
+  });
+  new MutationObserver(()=>queueMicrotask(enhanceAllCharacterGroupSelectors)).observe(document.querySelector('main'),{childList:true,subtree:true});
+  document.getElementById('language')?.addEventListener('change',()=>requestAnimationFrame(enhanceAllCharacterGroupSelectors));
+  window.__enhanceCharacterGroupSelector=enhanceCharacterGroupSelector;
+  enhanceAllCharacterGroupSelectors();
+})();
 </script>
 </body></html>
 <script>
@@ -806,5 +940,25 @@ tabs.onclick=e=>{const b=e.target.closest('[data-view]');if(!b)return;const v=b.
   new MutationObserver(addComparisonRouteEditors).observe(compareView,{childList:true,subtree:true});
   document.getElementById('language')?.addEventListener('change',()=>requestAnimationFrame(addComparisonRouteEditors));
   addComparisonRouteEditors();
+})();
+</script>
+<script>
+(()=>{
+  const fusionCharacter=document.getElementById('fChar');
+  if(!fusionCharacter)return;
+  const clearInitialFusionSelection=()=>{
+    fusionCharacter.value='';
+    document.getElementById('fCharacterSummary').innerHTML='<span class="config-summary-action">选择角色开始模拟</span>';
+    document.querySelectorAll('#fCharacterList .config-character.active').forEach(button=>button.classList.remove('active'));
+    document.getElementById('fSources').innerHTML='<p class="note">请选择角色后查看可参与融合的主线。</p>';
+    document.getElementById('fOut').innerHTML='';
+  };
+  document.getElementById('fCharacterList').addEventListener('click',event=>{
+    if(event.target.closest('[data-sim-character^="f:"]'))fusionCharacter.dataset.userSelected='true';
+  },true);
+  document.querySelector('[data-view="fusion2"]')?.addEventListener('click',()=>{
+    if(!fusionCharacter.dataset.userSelected)queueMicrotask(clearInitialFusionSelection);
+  },true);
+  clearInitialFusionSelection();
 })();
 </script>
