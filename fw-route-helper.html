@@ -540,7 +540,9 @@ render();
   };
 
   document.head.insertAdjacentHTML('beforeend',`<style>
-    #charList.savior-list,.config-character-list{display:block;padding:7px}
+    /* Keep the picker as one continuous panel: an expanded team grows the
+       surrounding panel instead of introducing a second, nested scrollbar. */
+    #charList.savior-list,.config-character-list{display:block;max-height:none!important;overflow:visible!important;padding:7px}
     .team-group-card-grid{display:grid;gap:7px}
     .team-group-card-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
     #fCharacterPicker.sim-character-picker{margin-top:13px!important}
