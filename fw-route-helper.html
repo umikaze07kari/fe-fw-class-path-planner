@@ -392,11 +392,14 @@ function memberMatchesArenaCourse(m){
 }
 const SAVIOR_ROSTER_GROUPS = [
   ["opening","开篇伙伴","序章の仲間",["chr-1","chr-35","chr-34"]],
-  ["kai","凯伊路线","カイルート",["chr-4","chr-8","chr-9","chr-10"]],
-  ["dietrich","迪托利希路线","ディートリヒルート",["chr-5","chr-11","chr-12","chr-13"]],
-  ["theodora","赛奥朵拉路线","セオドラルート",["chr-6","chr-14","chr-15","chr-16","chr-17"]],
-  ["leda","蕾达路线","レダルート",["chr-7","chr-18","chr-19","chr-20","chr-21"]],
-  ["elite","大剑斗祭八强","大剣闘祭ベスト8",["chr-22","chr-23","chr-24","chr-25"]]
+  ["kai","利贝拉之风","リベラの風",["chr-4","chr-8","chr-9","chr-10"]],
+  ["dietrich","拉弥努家族","ラミヌ家",["chr-5","chr-11","chr-12","chr-13"]],
+  ["theodora","美盖拉的灯火","メガイラの灯火",["chr-6","chr-14","chr-15","chr-16","chr-17"]],
+  ["leda","蔷薇风暴","薔薇の嵐",["chr-7","chr-18","chr-19","chr-20","chr-21"]],
+  ["moon-lies","月之谎言","月の嘘",["chr-23","chr-37","chr-59","chr-41","chr-58"]],
+  ["hime-snapdragon","姬金鱼草的朝露","姫金魚草の朝露",["chr-24","chr-38","chr-42","chr-62","chr-63"]],
+  ["white-raven","白鸦新娘团","白鴉の花嫁団",["chr-25","chr-43","chr-39","chr-60","chr-61"]],
+  ["flame-mane","炎之鬃","炎の鬣",["chr-22","chr-56","chr-57","chr-40","chr-36"]]
 ];
 function rosterItem(entry) {
  const c=entry.c,info=entry.info,owned=state.teams[active].some(x=>x.id===c.id),label=active==="救世篇"?saviorRosterDescription(c,info.label):info.label;
@@ -729,5 +732,79 @@ tabs.onclick=e=>{const b=e.target.closest('[data-view]');if(!b)return;const v=b.
   new MutationObserver(syncFusionCardStates).observe(document.getElementById('fSources'),{childList:true,subtree:true});
   syncFusionCardStates();
   syncFusionJoinLevels();
+})();
+</script>
+<script>
+(()=>{
+  const compareView=document.getElementById('compareView');
+  if(!compareView)return;
+  document.head.insertAdjacentHTML('beforeend',`<style>
+    .compare-route-control{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px;align-items:end;min-width:0}
+    .compare-route-edit{min-height:34px;padding:5px 8px;white-space:nowrap;font-size:11px}
+    .compare-route-edit:disabled{cursor:not-allowed;opacity:.5}
+    @media(max-width:720px){.compare-route-control{gap:4px}.compare-route-edit{min-height:29px;padding:4px 5px;font-size:9px}}
+  </style>`);
+
+  const editLabel=()=>isJa()?'編集':'编辑';
+  const unavailableTitle=()=>isJa()?'共通テンプレートはキャラ別ルート編集では変更できません':'通用模板不能在角色路线编辑页中修改';
+  const editRouteTitle=()=>isJa()?'このキャラのルートを編集':'编辑该角色的路线';
+
+  function routeEditorRef(characterId,source){
+    if(!characterId||!String(source).startsWith('path:'))return null;
+    const character=characterById[characterId];
+    if(!character)return null;
+    const path=paths(character)[+String(source).slice(5)];
+    const ref=configRefs(character).find(item=>item.path===path);
+    return character&&ref?{character,ref}:null;
+  }
+
+  function openComparisonRouteEditor(characterId,source){
+    const target=routeEditorRef(characterId,source);
+    if(!target)return;
+    configCharacterId=target.character.id;
+    configRef={kind:target.ref.kind,index:target.ref.index};
+    loadDraft(target.character);
+    document.querySelector('[data-view="config"]')?.click();
+    document.getElementById('configView')?.scrollIntoView?.({behavior:'smooth',block:'start'});
+  }
+
+  function addComparisonRouteEditors(){
+    const comparison=comparisonState();
+    compareView.querySelectorAll('select[data-cmp-field="source"],select[data-cmp-shared="sharedSource"]').forEach(select=>{
+      const label=select.closest('label');
+      if(!label)return;
+      let control=label.parentElement;
+      if(!control?.classList.contains('compare-route-control')){
+        control=document.createElement('div');
+        control.className='compare-route-control';
+        label.before(control);
+        control.append(label);
+        const button=document.createElement('button');
+        button.type='button';
+        button.className='compare-route-edit';
+        control.append(button);
+      }
+      const button=control.querySelector('.compare-route-edit');
+      const row=select.closest('[data-cmp-row]');
+      const item=comparison.rows.find(entry=>entry.id===row?.dataset.cmpRow);
+      const characterId=comparison.mode==='same-character'?comparison.sharedCharacterId:item?.characterId;
+      const editable=routeEditorRef(characterId,select.value);
+      button.textContent=editLabel();
+      button.disabled=!editable;
+      button.title=editable?editRouteTitle():unavailableTitle();
+      button.dataset.cmpEditCharacter=characterId||'';
+      button.dataset.cmpEditSource=select.value;
+    });
+  }
+
+  compareView.addEventListener('click',event=>{
+    const button=event.target.closest('.compare-route-edit');
+    if(!button||button.disabled)return;
+    openComparisonRouteEditor(button.dataset.cmpEditCharacter,button.dataset.cmpEditSource);
+  });
+  compareView.addEventListener('change',()=>requestAnimationFrame(addComparisonRouteEditors));
+  new MutationObserver(addComparisonRouteEditors).observe(compareView,{childList:true,subtree:true});
+  document.getElementById('language')?.addEventListener('change',()=>requestAnimationFrame(addComparisonRouteEditors));
+  addComparisonRouteEditors();
 })();
 </script>
